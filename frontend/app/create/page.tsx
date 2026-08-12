@@ -5,7 +5,7 @@ import Link from "next/link";
 import { campaignDraftSchema } from "@/lib/validation";
 import { formatGen, parseGen, unixSeconds } from "@/lib/format";
 import { inviteCommitment, randomInviteSecret } from "@/lib/invite";
-import { readClient, requireContract, waitAccepted, waitFinalized, writeClient } from "@/lib/contract";
+import { assertContractConfig, assertFunded, findCampaignByInviteHash, requireContract, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
 import { useWallet } from "@/lib/wallet";
 import type { CampaignDraft, DemandDraft, TxStage } from "@/lib/types";
 import type { Hash } from "genlayer-js/types";
@@ -41,16 +41,19 @@ export default function CreatePage() {
   const removeDemand = (index: number) => update("demands", draft.demands.filter((_, position) => position !== index));
 
   async function submit() {
-    setError(undefined); setInvitation(undefined);
+    setError(undefined); setInvitation(undefined); setStage("idle");
     const parsed = campaignDraftSchema.safeParse(draft);
     if (!parsed.success) { setError(parsed.error.issues[0]?.message || "Review the campaign details"); return; }
     if (!address) { await connect(); return; }
     const secret = randomInviteSecret();
     try {
       await ensureNetwork();
-      setStage("signing");
       const commitment = await inviteCommitment(secret);
+      const escrow = parseGen(draft.escrowGen);
+      await assertContractConfig();
+      await assertFunded(address, escrow);
       const client = writeClient(address);
+      setStage("signing");
       const txHash = await client.writeContract({
         address: requireContract(),
         functionName: "create_campaign",
@@ -63,16 +66,15 @@ export default function CreatePage() {
           draft.demands.map(item => item.minViews), draft.demands.map(item => item.minLikes),
           draft.demands.map(item => item.minReposts),
         ],
-        value: parseGen(draft.escrowGen),
+        value: escrow,
       });
       setHash(txHash); setStage("submitted");
-      await waitAccepted(txHash as Hash); setStage("accepted");
-      await waitFinalized(txHash as Hash); setStage("finalized");
-      const ids = await readClient.readContract({ address: requireContract(), functionName: "get_creator_campaign_ids", args: [address, 0, 50] }) as Array<number | bigint>;
-      const campaignId = Number(ids.at(-1));
+      await waitForOutcome(txHash as Hash, () => setStage("accepted")); setStage("finalized");
+      const campaignId = await findCampaignByInviteHash(address, commitment);
       setInvitation(`${window.location.origin}/invite/${campaignId}#invite=${secret}`);
     } catch (caught) {
-      setStage("error"); setError(caught instanceof Error ? caught.message : "Campaign creation failed");
+      setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : "error");
+      setError(caught instanceof Error ? caught.message : "Campaign creation failed");
     }
   }
 

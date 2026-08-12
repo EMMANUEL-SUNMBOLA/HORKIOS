@@ -6,7 +6,7 @@ import { useState } from "react";
 import { TxProgress } from "@/components/tx-progress";
 import { formatDate, formatGen, truncateAddress } from "@/lib/format";
 import { readInviteFragment } from "@/lib/invite";
-import { readCampaign, requireContract, waitAccepted, waitFinalized, writeClient } from "@/lib/contract";
+import { readCampaign, requireContract, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
 import { useWallet } from "@/lib/wallet";
 import type { TxStage } from "@/lib/types";
 import type { Hash } from "genlayer-js/types";
@@ -27,10 +27,16 @@ export default function InvitePage() {
     try {
       await ensureNetwork(); setStage("signing");
       const reviews = campaign!.demands.map((_, index) => accepted[index] ?? true);
-      const proposed = campaign!.demands.map((demand, index) => reviews[index] ? 0 : Math.floor(new Date(dates[index] ?? new Date(Number(demand.original_deadline) * 1000).toISOString().slice(0, 16)).getTime() / 1000));
+      const proposed = campaign!.demands.map((demand, index) => {
+        if (reviews[index]) return 0;
+        if (!dates[index]) throw new Error(`Choose a later deadline for demand ${index + 1}`);
+        const seconds = Math.floor(new Date(dates[index]).getTime() / 1000);
+        if (!Number.isFinite(seconds) || seconds <= Number(demand.original_deadline)) throw new Error(`Demand ${index + 1} deadline must be strictly later than the original`);
+        return seconds;
+      });
       const txHash = await writeClient(address).writeContract({ address: requireContract(), functionName: "review_campaign", args: [id, secret, reviews, proposed], value: 0n });
-      setHash(txHash); setStage("submitted"); await waitAccepted(txHash as Hash); setStage("accepted"); await waitFinalized(txHash as Hash); setStage("finalized"); router.push(`/campaign/${id}`);
-    } catch (caught) { setStage("error"); setError(caught instanceof Error ? caught.message : "Review failed"); }
+      setHash(txHash); setStage("submitted"); await waitForOutcome(txHash as Hash, () => setStage("accepted")); setStage("finalized"); router.push(`/campaign/${id}`);
+    } catch (caught) { setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : "error"); setError(caught instanceof Error ? caught.message : "Review failed"); }
   }
 
   const campaign = query.data;
@@ -46,7 +52,7 @@ export default function InvitePage() {
           <p>{demand.instructions}</p><div className="metrics"><span className="metric">Views ≥ {String(demand.min_views)}</span><span className="metric">Likes ≥ {String(demand.min_likes)}</span><span className="metric">Due {formatDate(demand.original_deadline)}</span></div>
           <label><input type="radio" name={`review-${index}`} checked={accepted[index] ?? true} onChange={() => setAccepted(values => { const next = [...values]; next[index] = true; return next; })} /> Accept this demand</label>
           <label><input type="radio" name={`review-${index}`} checked={accepted[index] === false} onChange={() => setAccepted(values => { const next = [...values]; next[index] = false; return next; })} /> Propose a later deadline</label>
-          {accepted[index] === false && <input className="input" type="datetime-local" value={dates[index] ?? new Date(Number(demand.original_deadline) * 1000).toISOString().slice(0, 16)} onChange={event => setDates(values => { const next = [...values]; next[index] = event.target.value; return next; })} />}
+          {accepted[index] === false && <input className="input" type="datetime-local" min={new Date((Number(demand.original_deadline) + 60) * 1000).toISOString().slice(0, 16)} value={dates[index] ?? ""} onChange={event => setDates(values => { const next = [...values]; next[index] = event.target.value; return next; })} />}
         </article>)}
       </section>
       <aside className="stack sticky"><div className="card stack"><h2>Before you sign</h2><div className="notice">Terms, wallet addresses, evidence, and decisions are public.</div><div className="summary-row"><span>Gross compensation</span><strong>{formatGen(campaign.original_escrow)}</strong></div><button className="button bronze" disabled={!secret} onClick={review}>{address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}</button>{error && <p className="error">{error}</p>}</div><TxProgress stage={stage} hash={hash} /></aside>

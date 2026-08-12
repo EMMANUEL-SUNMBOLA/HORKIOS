@@ -24,7 +24,7 @@ The initial product focuses on KOL campaigns because they provide a clear and re
 
 ## MVP
 
-The first HORKIOS release will support public X/Twitter campaigns funded with native GEN on GenLayer Testnet Bradbury.
+The first HORKIOS release will support public X/Twitter campaigns funded with native GEN on GenLayer Testnet Bradbury. Development and launch-gate testing run on Studionet; the exact source revision that passes that gate is then promoted to Bradbury for submission.
 
 ### Creator journey
 
@@ -144,9 +144,10 @@ HORKIOS/
 
 ## Documentation
 
-- [Contract plan](./CONTRACTS-PLAN.md)
-- [UI and layout plan](./UI-LAYOUT.md)
+Personal planning Markdown is intentionally kept out of Git. The public contract behavior,
+setup, and release status are documented here; the application also includes a user-facing
+How It Works page.
 
 ## Status
 
-Research and specification. No production contract has been deployed, and testnet GEN has no monetary value.
+Active Studionet development and lifecycle testing. Bradbury deployment is promotion-only after the full launch gate passes, and test GEN has no monetary value.

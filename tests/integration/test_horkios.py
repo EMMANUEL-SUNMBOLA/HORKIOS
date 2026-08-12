@@ -15,7 +15,7 @@ from gltest.assertions import tx_execution_succeeded  # noqa: E402
 @pytest.mark.integration
 def test_create_campaign_and_read_accounting(accounts):
     factory = get_contract_factory("HorkiosEscrow")
-    contract = factory.deploy(args=[accounts[3].address, 60])
+    contract = factory.deploy(args=[])
     now = 2_000_000_000
     receipt = contract.create_campaign(args=[
         "Launch thread", "Public test", "horkios", now + 3600,

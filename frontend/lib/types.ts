@@ -51,6 +51,20 @@ export type Demand = {
   settled_at: bigint | number | string;
 };
 
+export type TerminationCase = {
+  requester: Address;
+  category: string;
+  statement: string;
+  requester_evidence_json: string;
+  respondent_statement: string;
+  respondent_evidence_json: string;
+  opened_at: bigint | number | string;
+  response_deadline: bigint | number | string;
+  status: number;
+  ruling: number;
+  reason: string;
+};
+
 export type Campaign = {
   creator: Address;
   kol: Address;
@@ -70,6 +84,7 @@ export type Campaign = {
   refunded: bigint | number | string;
   passed_count: number;
   demands: Demand[];
+  termination: TerminationCase;
 };
 
-export type TxStage = "idle" | "signing" | "submitted" | "accepted" | "finalized" | "undetermined" | "error";
+export type TxStage = "idle" | "signing" | "submitted" | "accepted" | "evaluating" | "finalized" | "undetermined" | "error";

@@ -67,8 +67,7 @@ genlayer-config.json
 glsim-data/
 studio-data/
 artifacts/
-deployments/localnet/
-deployments/studionet/
+deployments/
 
 # Logs and runtime files
 logs/

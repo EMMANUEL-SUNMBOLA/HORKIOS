@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { CampaignStatus } from "@/components/status-badge";
 import { formatGen, truncateAddress } from "@/lib/format";
-import { readCampaign, readClient, requireContract } from "@/lib/contract";
+import { networkName, readCampaign, readClient, requireContract } from "@/lib/contract";
 import { useWallet } from "@/lib/wallet";
 
 export default function DashboardPage() {
@@ -33,7 +33,7 @@ export default function DashboardPage() {
     </div>
 
     <section className="overview-grid" aria-label="Oath overview">
-      <div className="overview-account"><span className="overview-label">CONNECTED ACCOUNT</span><strong>{address ? truncateAddress(address) : "NOT CONNECTED"}</strong><span className={`connection-state ${address ? "online" : ""}`}><i />{address ? "BRADBURY · ONLINE" : "WALLET REQUIRED"}</span></div>
+      <div className="overview-account"><span className="overview-label">CONNECTED ACCOUNT</span><strong>{address ? truncateAddress(address) : "NOT CONNECTED"}</strong><span className={`connection-state ${address ? "online" : ""}`}><i />{address ? `${networkName.toUpperCase()} · ONLINE` : "WALLET REQUIRED"}</span></div>
       <div className="overview-stat"><span className="overview-label">TOTAL OATHS</span><strong>{loaded.length.toString().padStart(2, "0")}</strong><small>Creator + KOL</small></div>
       <div className="overview-stat"><span className="overview-label">ACTIVE</span><strong>{active.toString().padStart(2, "0")}</strong><small>In progress</small></div>
       <div className="overview-stat"><span className="overview-label">LOCKED VALUE</span><strong>{address ? formatGen(locked).replace(" GEN", "") : "—"}</strong><small>GEN</small></div>
