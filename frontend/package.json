@@ -1,0 +1,34 @@
+{
+  "name": "@horkios/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "5.101.4",
+    "genlayer-js": "1.1.8",
+    "next": "16.3.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "24.10.4",
+    "@types/react": "19.2.10",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.2",
+    "eslint-config-next": "16.3.0",
+    "jsdom": "27.4.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.0"
+  }
+}

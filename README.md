@@ -53,6 +53,8 @@ The first HORKIOS release will support public X/Twitter campaigns funded with na
 - Completed payouts are final and cannot be reversed by a later dispute.
 - A check that fails before its deadline may be retried because public engagement can increase.
 - An expired demand receives one final verification before its allocation is refunded.
+- Validator output is parsed strictly: malformed shapes, string booleans, invalid numbers,
+  or a status ID that does not match the canonical evidence URL cannot authorize a payout.
 - Neither party can unilaterally withdraw after activation.
 
 ## Exceptional termination
@@ -148,4 +150,3 @@ HORKIOS/
 ## Status
 
 Research and specification. No production contract has been deployed, and testnet GEN has no monetary value.
-
