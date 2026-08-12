@@ -3,6 +3,7 @@ import { localnet, studionet, testnetBradbury } from "genlayer-js/chains";
 import { ExecutionResult, TransactionStatus } from "genlayer-js/types";
 import type { Hash } from "genlayer-js/types";
 import type { Address, Campaign } from "./types";
+import { hostedRpcUpstream, RPC_RELAY_PATH } from "./rpc-relay";
 
 declare global {
   interface Window { ethereum?: unknown; }
@@ -12,7 +13,15 @@ export const networkName = process.env.NEXT_PUBLIC_GENLAYER_NETWORK || "studione
 export const contractAddress = process.env.NEXT_PUBLIC_HORKIOS_CONTRACT_ADDRESS as Address | undefined;
 
 const chains = { localnet, studionet, testnetBradbury } as const;
-export const chain = chains[networkName as keyof typeof chains] ?? studionet;
+const officialChain = chains[networkName as keyof typeof chains] ?? studionet;
+const browserRpc = hostedRpcUpstream(networkName) ? RPC_RELAY_PATH : officialChain.rpcUrls.default.http[0];
+export const chain = {
+  ...officialChain,
+  rpcUrls: {
+    ...officialChain.rpcUrls,
+    default: { ...officialChain.rpcUrls.default, http: [browserRpc] },
+  },
+};
 export const readClient = createClient({ chain });
 
 export function writeClient(address: Address) {

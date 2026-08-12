@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ExecutionResult, TransactionStatus } from "genlayer-js/types";
 import { receiptFailure } from "./contract";
+import { chain } from "./contract";
+import { studionet } from "genlayer-js/chains";
 
 describe("transaction receipt outcomes", () => {
   it("accepts only a finalized successful execution", () => {
@@ -24,5 +26,12 @@ describe("transaction receipt outcomes", () => {
 
   it("does not treat an accepted receipt as final", () => {
     expect(receiptFailure({ statusName: TransactionStatus.ACCEPTED })).toBeNull();
+  });
+});
+
+describe("browser RPC transport", () => {
+  it("uses the same-origin relay without mutating the official wallet chain", () => {
+    expect(chain.rpcUrls.default.http[0]).toBe("/api/genlayer-rpc");
+    expect(studionet.rpcUrls.default.http[0]).toBe("https://studio.genlayer.com/api");
   });
 });

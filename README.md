@@ -151,3 +151,8 @@ How It Works page.
 ## Status
 
 Active Studionet development and lifecycle testing. Bradbury deployment is promotion-only after the full launch gate passes, and test GEN has no monetary value.
+
+Browser JSON-RPC calls for hosted GenLayer networks use the same-origin
+`/api/genlayer-rpc` relay. It forwards only to the fixed official Studionet or Bradbury
+upstream, avoiding hosted-RPC CORS restrictions without exposing an open proxy. Localnet
+continues to use its direct local endpoint.
