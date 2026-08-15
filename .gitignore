@@ -48,14 +48,14 @@ htmlcov/
 .cache/
 coverage/
 
-# Personal root documentation (README is the public project document)
-/*.md
+# Personal Markdown notes anywhere in the workspace. Keep intentional project docs public.
+**/*.md
 !/README.md
 
-# Environment files and secrets
-.env
-.env.*
-!.env.example
+# Environment files and secrets at every directory depth; examples remain versioned.
+**/.env
+**/.env.*
+!**/.env.example
 *.pem
 *.key
 *.keystore

@@ -129,6 +129,8 @@ HORKIOS/
 - A failed or expired milestone refunds the correct allocation without a fee.
 - A termination ruling preserves past payouts and correctly distributes only the remaining escrow.
 - Contract accounting always reconciles deposited, locked, paid, refunded, and fee amounts.
+- The frontend verifies the deployed contract's immutable release identity before allowing a
+  funded write, preventing an obsolete deployment with matching fee settings from being reused.
 - The deployed project demonstrates both Optimistic Democracy and the Equivalence Principle.
 
 ## Deferred beyond MVP

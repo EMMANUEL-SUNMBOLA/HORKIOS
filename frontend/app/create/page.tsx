@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { campaignDraftSchema } from "@/lib/validation";
 import { formatGen, parseGen, unixSeconds } from "@/lib/format";
 import { inviteCommitment, randomInviteSecret } from "@/lib/invite";
-import { assertContractConfig, assertFunded, findCampaignByInviteHash, requireContract, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
+import { assertContractConfig, assertFunded, contractAddress, findCampaignByInviteHash, networkName, requireContract, TransactionStatusUnavailableError, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
+import { clearPendingCreate, loadPendingCreate, savePendingCreate, type PendingCreate } from "@/lib/pending-create";
 import { useWallet } from "@/lib/wallet";
 import type { CampaignDraft, DemandDraft, TxStage } from "@/lib/types";
 import type { Hash } from "genlayer-js/types";
@@ -30,6 +31,8 @@ export default function CreatePage() {
   const [hash, setHash] = useState<string>();
   const [error, setError] = useState<string>();
   const [invitation, setInvitation] = useState<string>();
+  const [monitoringDelayed, setMonitoringDelayed] = useState(false);
+  const recovering = useRef(false);
   const weightTotal = useMemo(() => draft.demands.reduce((sum, demand) => sum + demand.weightBps, 0), [draft.demands]);
 
   const update = <K extends keyof CampaignDraft>(key: K, value: CampaignDraft[K]) => setDraft(current => ({ ...current, [key]: value }));
@@ -40,6 +43,28 @@ export default function CreatePage() {
   };
   const removeDemand = (index: number) => update("demands", draft.demands.filter((_, position) => position !== index));
 
+  async function monitorPending(pending: PendingCreate) {
+    if (!pending.txHash) return;
+    setHash(pending.txHash); setStage("submitted");
+    try {
+      await waitForOutcome(pending.txHash as Hash, { onAccepted: () => setStage("accepted"), onMonitoringDelay: setMonitoringDelayed });
+      setStage("finalized");
+      const campaignId = await findCampaignByInviteHash(pending.creator, pending.inviteHash);
+      setInvitation(`${window.location.origin}/invite/${campaignId}#invite=${pending.secret}`);
+    } catch (caught) {
+      setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : caught instanceof TransactionStatusUnavailableError ? "status_unavailable" : "error");
+      setError(caught instanceof Error ? caught.message : "Campaign creation failed");
+    }
+  }
+
+  useEffect(() => {
+    if (!address || !contractAddress || recovering.current) return;
+    const pending = loadPendingCreate(networkName, contractAddress, address);
+    if (!pending?.txHash) return;
+    recovering.current = true;
+    queueMicrotask(() => { void monitorPending(pending).finally(() => { recovering.current = false; }); });
+  }, [address]);
+
   async function submit() {
     setError(undefined); setInvitation(undefined); setStage("idle");
     const parsed = campaignDraftSchema.safeParse(draft);
@@ -49,6 +74,8 @@ export default function CreatePage() {
     try {
       await ensureNetwork();
       const commitment = await inviteCommitment(secret);
+      const pending: PendingCreate = { version: 1, network: networkName, contract: requireContract(), creator: address, secret, inviteHash: commitment, acceptanceDeadline: unixSeconds(draft.acceptanceDeadline), createdAt: Date.now() };
+      savePendingCreate(pending);
       const escrow = parseGen(draft.escrowGen);
       await assertContractConfig();
       await assertFunded(address, escrow);
@@ -68,12 +95,13 @@ export default function CreatePage() {
         ],
         value: escrow,
       });
+      pending.txHash = txHash; savePendingCreate(pending);
       setHash(txHash); setStage("submitted");
-      await waitForOutcome(txHash as Hash, () => setStage("accepted")); setStage("finalized");
+      await waitForOutcome(txHash as Hash, { onAccepted: () => setStage("accepted"), onMonitoringDelay: setMonitoringDelayed }); setStage("finalized");
       const campaignId = await findCampaignByInviteHash(address, commitment);
       setInvitation(`${window.location.origin}/invite/${campaignId}#invite=${secret}`);
     } catch (caught) {
-      setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : "error");
+      setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : caught instanceof TransactionStatusUnavailableError ? "status_unavailable" : "error");
       setError(caught instanceof Error ? caught.message : "Campaign creation failed");
     }
   }
@@ -122,8 +150,8 @@ export default function CreatePage() {
           {error && <p className="error">{error}</p>}
           <button className="button bronze" onClick={submit}>{address ? "Fund and create oath" : "Connect wallet"}</button>
         </div>
-        <TxProgress stage={stage} hash={hash} />
-        {invitation && <div className="card stack"><div className="success">Your oath is funded.</div><input className="input mono" readOnly value={invitation} /><button className="button" onClick={() => navigator.clipboard.writeText(invitation)}>Copy invitation</button><p className="muted">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p><Link className="button secondary" href={invitation}>Open invitation</Link></div>}
+        <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />
+        {invitation && <div className="card stack"><div className="success">Your oath is funded.</div><input className="input mono" readOnly value={invitation} /><button className="button" onClick={async () => { await navigator.clipboard.writeText(invitation); if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); } }}>Copy invitation</button><p className="muted">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p><Link className="button secondary" href={invitation}>Open invitation</Link></div>}
       </aside>
     </div>
   </>;

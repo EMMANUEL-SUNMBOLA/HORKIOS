@@ -87,4 +87,4 @@ export type Campaign = {
   termination: TerminationCase;
 };
 
-export type TxStage = "idle" | "signing" | "submitted" | "accepted" | "evaluating" | "finalized" | "undetermined" | "error";
+export type TxStage = "idle" | "signing" | "submitted" | "accepted" | "evaluating" | "finalized" | "undetermined" | "status_unavailable" | "error";

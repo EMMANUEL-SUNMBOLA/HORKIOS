@@ -7,7 +7,7 @@ import { CampaignStatus, DemandStatus } from "@/components/status-badge";
 import { TxProgress } from "@/components/tx-progress";
 import { canonicalXUrl } from "@/lib/validation";
 import { formatDate, formatGen, truncateAddress } from "@/lib/format";
-import { readCampaign, requireContract, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
+import { readCampaign, requireContract, TransactionStatusUnavailableError, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
 import { useWallet } from "@/lib/wallet";
 import type { TxStage } from "@/lib/types";
 import type { CalldataEncodable, Hash } from "genlayer-js/types";
@@ -21,6 +21,7 @@ export default function CampaignPage() {
   const [stage, setStage] = useState<TxStage>("idle");
   const [hash, setHash] = useState<string>();
   const [error, setError] = useState<string>();
+  const [monitoringDelayed, setMonitoringDelayed] = useState(false);
   const [nowSeconds, setNowSeconds] = useState(() => Math.floor(Date.now() / 1000));
   const [terminationCategory, setTerminationCategory] = useState("external_hardship");
   const [terminationStatement, setTerminationStatement] = useState("");
@@ -55,9 +56,9 @@ export default function CampaignPage() {
       const txHash = await writeClient(address).writeContract({ address: requireContract(), functionName, args, value: 0n });
       setHash(txHash); setStage("submitted");
       const usesConsensus = ["verify_demand", "finalize_expired_demand", "adjudicate_termination"].includes(functionName);
-      await waitForOutcome(txHash as Hash, () => setStage(usesConsensus ? "evaluating" : "accepted")); setStage("finalized");
+      await waitForOutcome(txHash as Hash, { onAccepted: () => setStage(usesConsensus ? "evaluating" : "accepted"), onMonitoringDelay: setMonitoringDelayed }); setStage("finalized");
       await queryClient.invalidateQueries({ queryKey: ["campaign", id] });
-    } catch (caught) { setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : "error"); setError(caught instanceof Error ? caught.message : "Transaction failed"); }
+    } catch (caught) { setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : caught instanceof TransactionStatusUnavailableError ? "status_unavailable" : "error"); setError(caught instanceof Error ? caught.message : "Transaction failed"); }
   }
 
   if (campaignQuery.isLoading) return <div className="empty">Reading oath from GenLayer…</div>;
@@ -101,7 +102,7 @@ export default function CampaignPage() {
         {isParty && Number(campaign.status) === 2 && <div className="card stack"><h2>Request termination</h2><p className="muted">Past payouts remain final. Your statement and public evidence are permanent.</p><select className="select" value={terminationCategory} onChange={event => setTerminationCategory(event.target.value)}><option value="external_hardship">External hardship</option><option value="kol_breach">KOL breach or abandonment</option><option value="other">Other</option></select><textarea className="textarea" maxLength={2000} placeholder="Public statement" value={terminationStatement} onChange={event => setTerminationStatement(event.target.value)} /><textarea className="textarea" placeholder="Public HTTPS evidence URLs, one per line (max 5)" value={terminationUrls} onChange={event => setTerminationUrls(event.target.value)} /><button className="button danger" disabled={!terminationStatement.trim()} onClick={() => transact("request_termination", [id, terminationCategory, terminationStatement.trim(), parseUrls(terminationUrls)])}>Open 48-hour termination case</button></div>}
         {Number(campaign.status) === 3 && <div className="card stack"><h2>Termination case</h2><div className="summary-row"><span>Category</span><strong>{termination.category.replaceAll("_", " ")}</strong></div><p>{termination.statement}</p><p className="muted">Response deadline: {formatDate(termination.response_deadline)}</p>{termination.respondent_statement && <div className="notice"><strong>Response</strong><p>{termination.respondent_statement}</p></div>}{termination.reason && <div className="notice"><strong>Ruling {String(termination.ruling)}</strong><p>{termination.reason}</p></div>}{isParty && !isRequester && responseOpen && <><textarea className="textarea" maxLength={2000} placeholder="Public response (may be empty if evidence is supplied)" value={responseStatement} onChange={event => setResponseStatement(event.target.value)} /><textarea className="textarea" placeholder="Public HTTPS evidence URLs, one per line (max 5)" value={responseUrls} onChange={event => setResponseUrls(event.target.value)} /><button className="button bronze" onClick={() => transact("respond_to_termination", [id, responseStatement.trim(), parseUrls(responseUrls)])}>Submit one-time response</button></>}{isParty && adjudicationReady && <button className="button danger" onClick={() => transact("adjudicate_termination", [id])}>Ask GenLayer to adjudicate</button>}</div>}
         {error && <p className="error">{error}</p>}
-        <TxProgress stage={stage} hash={hash} />
+        <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />
       </aside>
     </div>
   </>;

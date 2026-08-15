@@ -38,10 +38,12 @@ describe("hosted RPC routing", () => {
   });
 
   it("preserves upstream status and JSON-RPC errors", async () => {
-    const fetcher = vi.fn(async () => new Response('{"jsonrpc":"2.0","id":7,"error":{"code":-1,"message":"failed"}}', { status: 429 }));
+    const fetcher = vi.fn(async () => new Response('{"jsonrpc":"2.0","id":7,"error":{"code":-1,"message":"failed"}}', { status: 429, headers: { "Retry-After": "30" } }));
     const response = await relayGenLayerRpc(request(validBody), "testnetBradbury", fetcher as typeof fetch);
     expect(response.status).toBe(429);
     expect(await response.json()).toMatchObject({ error: { message: "failed" } });
+    expect(response.headers.get("retry-after")).toBe("30");
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
   it("rejects cross-origin, malformed, and oversized requests", async () => {
@@ -62,5 +64,29 @@ describe("hosted RPC routing", () => {
     const failed = vi.fn(async () => { throw new TypeError("fetch failed"); });
     const unavailable = await relayGenLayerRpc(request(validBody), "studionet", failed as typeof fetch);
     expect(unavailable.status).toBe(502);
+  });
+
+  it("retries transient upstream failures before succeeding", async () => {
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(new Response("boom", { status: 502 }))
+      .mockResolvedValueOnce(new Response("boom", { status: 503 }))
+      .mockResolvedValueOnce(new Response('{"jsonrpc":"2.0","id":7,"result":"ok"}', {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }));
+    const response = await relayGenLayerRpc(request(validBody), "studionet", fetcher as typeof fetch, async () => {});
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ result: "ok" });
+    expect(fetcher).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not retry client errors", async () => {
+    const fetcher = vi.fn(async () => new Response('{"jsonrpc":"2.0","id":7,"error":{"code":-32000,"message":"rejected"}}', {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    }));
+    const response = await relayGenLayerRpc(request(validBody), "studionet", fetcher as typeof fetch);
+    expect(response.status).toBe(400);
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });

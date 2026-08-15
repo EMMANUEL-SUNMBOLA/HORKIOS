@@ -6,7 +6,7 @@ import { useState } from "react";
 import { TxProgress } from "@/components/tx-progress";
 import { formatDate, formatGen, truncateAddress } from "@/lib/format";
 import { readInviteFragment } from "@/lib/invite";
-import { readCampaign, requireContract, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
+import { readCampaign, requireContract, TransactionStatusUnavailableError, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
 import { useWallet } from "@/lib/wallet";
 import type { TxStage } from "@/lib/types";
 import type { Hash } from "genlayer-js/types";
@@ -19,6 +19,7 @@ export default function InvitePage() {
   const [dates, setDates] = useState<string[]>([]);
   const [stage, setStage] = useState<TxStage>("idle");
   const [hash, setHash] = useState<string>(); const [error, setError] = useState<string>();
+  const [monitoringDelayed, setMonitoringDelayed] = useState(false);
   const query = useQuery({ queryKey: ["campaign", id], queryFn: () => readCampaign(id) });
 
   async function review() {
@@ -35,8 +36,8 @@ export default function InvitePage() {
         return seconds;
       });
       const txHash = await writeClient(address).writeContract({ address: requireContract(), functionName: "review_campaign", args: [id, secret, reviews, proposed], value: 0n });
-      setHash(txHash); setStage("submitted"); await waitForOutcome(txHash as Hash, () => setStage("accepted")); setStage("finalized"); router.push(`/campaign/${id}`);
-    } catch (caught) { setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : "error"); setError(caught instanceof Error ? caught.message : "Review failed"); }
+      setHash(txHash); setStage("submitted"); await waitForOutcome(txHash as Hash, { onAccepted: () => setStage("accepted"), onMonitoringDelay: setMonitoringDelayed }); setStage("finalized"); router.push(`/campaign/${id}`);
+    } catch (caught) { setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : caught instanceof TransactionStatusUnavailableError ? "status_unavailable" : "error"); setError(caught instanceof Error ? caught.message : "Review failed"); }
   }
 
   const campaign = query.data;
@@ -55,7 +56,7 @@ export default function InvitePage() {
           {accepted[index] === false && <input className="input" type="datetime-local" min={new Date((Number(demand.original_deadline) + 60) * 1000).toISOString().slice(0, 16)} value={dates[index] ?? ""} onChange={event => setDates(values => { const next = [...values]; next[index] = event.target.value; return next; })} />}
         </article>)}
       </section>
-      <aside className="stack sticky"><div className="card stack"><h2>Before you sign</h2><div className="notice">Terms, wallet addresses, evidence, and decisions are public.</div><div className="summary-row"><span>Gross compensation</span><strong>{formatGen(campaign.original_escrow)}</strong></div><button className="button bronze" disabled={!secret} onClick={review}>{address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}</button>{error && <p className="error">{error}</p>}</div><TxProgress stage={stage} hash={hash} /></aside>
+      <aside className="stack sticky"><div className="card stack"><h2>Before you sign</h2><div className="notice">Terms, wallet addresses, evidence, and decisions are public.</div><div className="summary-row"><span>Gross compensation</span><strong>{formatGen(campaign.original_escrow)}</strong></div><button className="button bronze" disabled={!secret} onClick={review}>{address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}</button>{error && <p className="error">{error}</p>}</div><TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} /></aside>
     </div>
   </>;
 }

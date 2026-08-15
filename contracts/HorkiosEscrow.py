@@ -41,6 +41,7 @@ RULING_UNSUPPORTED = 3
 
 BPS_TOTAL = 10_000
 FEE_BPS = 100
+RELEASE_ID = "horkios-escrow-2026-08-storage-v2"
 MIN_DEMANDS = 1
 MAX_DEMANDS = 10
 MAX_TITLE = 120
@@ -218,7 +219,7 @@ class HorkiosEscrow(gl.Contract):
 
         campaign_id = self.campaign_count
         self.campaign_count = u256(int(self.campaign_count) + 1)
-        demands = gl.storage.inmem_allocate(DynArray[Demand])
+        demands: list[Demand] = []
         allocated = 0
         escrow = int(gl.message.value)
         for i in range(count):
@@ -447,6 +448,7 @@ class HorkiosEscrow(gl.Contract):
     @gl.public.view
     def get_config(self) -> dict[str, typing.Any]:
         return {
+            "release_id": RELEASE_ID,
             "fee_recipient": str(self.fee_recipient),
             "fee_bps": FEE_BPS,
             "max_demands": MAX_DEMANDS,
@@ -717,9 +719,7 @@ Campaign title: {campaign.title}
     def _append_wallet_index(
         self, index: TreeMap[Address, DynArray[u256]], address: Address, campaign_id: u256
     ) -> None:
-        if address not in index:
-            index[address] = gl.storage.inmem_allocate(DynArray[u256])
-        index[address].append(campaign_id)
+        index.get_or_insert_default(address).append(campaign_id)
 
     def _page_ids(
         self, index: TreeMap[Address, DynArray[u256]], address: Address, cursor: int, limit: int
