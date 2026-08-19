@@ -6,7 +6,9 @@ HORKIOS is a Web3 escrow SaaS built around GenLayer Intelligent Contracts. Its n
 
 HORKIOS turns a working agreement into a public, wallet-signed oath. A campaign creator defines what must be delivered, funds the agreement, and shares a private invitation link. The recipient reviews every demand, signs the terms with their wallet, submits public evidence, and receives payment as GenLayer verifies each milestone.
 
-The project is currently in the **research and planning phase**. This repository contains the agreed MVP specification; application and contract implementation will follow.
+The project is currently a **working Studionet MVP**. The contract, application, deployment
+workflow, and lifecycle tests are implemented; real-X launch-gate testing and the final
+Bradbury promotion remain in progress.
 
 ## Why HORKIOS?
 
@@ -71,7 +73,7 @@ GenLayer's protocol-level appeal mechanism remains available for contested valid
 
 ## Architecture
 
-The MVP will use three layers:
+The MVP uses three layers:
 
 1. **Intelligent Contract** — Python contract holding campaign state and native GEN, running verification, and settling funds.
 2. **Web application** — Next.js and TypeScript interface using GenLayerJS and an injected wallet such as MetaMask.
@@ -79,7 +81,7 @@ The MVP will use three layers:
 
 The frontend will communicate directly with the Intelligent Contract. The MVP will not require a database, centralized adjudication service, or public application API. A future read-only indexer may provide search, notifications, analytics, and webhooks, but it must never determine outcomes or control funds.
 
-## Planned repository structure
+## Repository structure
 
 ```text
 HORKIOS/
@@ -96,24 +98,24 @@ HORKIOS/
 
 ## Development phases
 
-### Phase 1 — Evidence feasibility
+### Phase 1 — Evidence feasibility (in progress)
 
 - Prove that multiple validators can independently retrieve stable X post authorship, content, timestamps, and public metrics.
 - Define source-grounded Equivalence Principle prompts and structured results.
 - Test inaccessible, deleted, suspended, malformed, and changing post data.
 
-### Phase 2 — Contract MVP
+### Phase 2 — Contract MVP (complete)
 
 - Implement campaign creation, escrow accounting, secret invitations, granular acceptance, counter-deadlines, verification, settlement, refunds, and termination.
 - Establish direct-mode contract tests and financial invariant tests.
 
-### Phase 3 — Product MVP
+### Phase 3 — Product MVP (complete on Studionet)
 
 - Build the responsive creator, invitation, campaign, dashboard, and evidence flows.
 - Integrate wallet connection, network switching, transaction feedback, and contract reads/writes.
 - Validate the complete journey in local GenLayer Studio.
 
-### Phase 4 — Submission and testnet
+### Phase 4 — Submission and testnet (next)
 
 - Deploy to Testnet Bradbury.
 - Publish reproducible setup and deployment documentation.

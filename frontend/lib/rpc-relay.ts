@@ -123,7 +123,7 @@ export async function relayGenLayerRpc(
   );
   return rpcError(
     requests[0].id,
-    -32000,
+    -32603,
     timedOut ? `GenLayer ${network} RPC timed out` : `GenLayer ${network} RPC is unavailable`,
     timedOut ? 504 : 502,
   );

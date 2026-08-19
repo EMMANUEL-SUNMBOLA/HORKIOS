@@ -59,11 +59,12 @@ describe("hosted RPC routing", () => {
     const timeout = vi.fn(async () => { throw new DOMException("timed out", "TimeoutError"); });
     const timedOut = await relayGenLayerRpc(request(validBody), "studionet", timeout as typeof fetch);
     expect(timedOut.status).toBe(504);
-    expect(await timedOut.json()).toMatchObject({ id: 7, error: { message: expect.stringContaining("timed out") } });
+    expect(await timedOut.json()).toMatchObject({ id: 7, error: { code: -32603, message: expect.stringContaining("timed out") } });
 
     const failed = vi.fn(async () => { throw new TypeError("fetch failed"); });
     const unavailable = await relayGenLayerRpc(request(validBody), "studionet", failed as typeof fetch);
     expect(unavailable.status).toBe(502);
+    expect(await unavailable.json()).toMatchObject({ id: 7, error: { code: -32603, message: expect.stringContaining("unavailable") } });
   });
 
   it("retries transient upstream failures before succeeding", async () => {

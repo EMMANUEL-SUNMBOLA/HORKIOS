@@ -102,7 +102,7 @@ async function _finalizedErrorDetail(receipt: ReceiptOutcome): Promise<string> {
 
 const sleep = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds));
 export const isRateLimitError = (error: unknown) => /rate limit|too many requests|\b429\b/i.test(String(error instanceof Error ? error.message : error));
-export const isTransientRpcError = (error: unknown) => isRateLimitError(error) || /timeout|timed out|fetch failed|network error|bad gateway|service unavailable|gateway timeout|\b50[234]\b|not found/i.test(String(error instanceof Error ? error.message : error));
+export const isTransientRpcError = (error: unknown) => isRateLimitError(error) || /timeout|timed out|fetch failed|network error|bad gateway|service unavailable|gateway timeout|unavailable|\b50[234]\b|not found/i.test(String(error instanceof Error ? error.message : error));
 
 export async function waitForOutcome(hash: Hash, callbacks: { onAccepted?: () => void; onMonitoringDelay?: (delayed: boolean) => void } = {}, options: { maxWaitMs?: number; pollMs?: number; getTransaction?: () => Promise<ReceiptOutcome>; sleep?: (ms: number) => Promise<unknown>; now?: () => number } = {}) {
   const started = (options.now ?? Date.now)();

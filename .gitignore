@@ -51,6 +51,7 @@ coverage/
 # Personal Markdown notes anywhere in the workspace. Keep intentional project docs public.
 **/*.md
 !/README.md
+!/AGENTS.md
 
 # Environment files and secrets at every directory depth; examples remain versioned.
 **/.env

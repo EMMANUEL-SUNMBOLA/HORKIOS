@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ExecutionResult, TransactionStatus } from "genlayer-js/types";
-import { expectedReleaseId, receiptFailure, validateContractConfig } from "./contract";
+import { expectedReleaseId, isTransientRpcError, receiptFailure, validateContractConfig } from "./contract";
 import { chain } from "./contract";
 import { studionet } from "genlayer-js/chains";
 
@@ -95,5 +95,9 @@ describe("browser RPC transport", () => {
   it("uses the same-origin relay without mutating the official wallet chain", () => {
     expect(chain.rpcUrls.default.http[0]).toBe("/api/genlayer-rpc");
     expect(studionet.rpcUrls.default.http[0]).toBe("https://studio.genlayer.com/api");
+  });
+
+  it("treats the relay's unavailable response as a monitoring delay", () => {
+    expect(isTransientRpcError(new Error("GenLayer studionet RPC is unavailable"))).toBe(true);
   });
 });
