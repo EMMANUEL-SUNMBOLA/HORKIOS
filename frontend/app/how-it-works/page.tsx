@@ -13,7 +13,7 @@ export default function HowItWorksPage() {
   return <div className="stack">
     <div className="page-head"><div><div className="eyebrow">Protocol guide</div><h1 className="page-title">How a HORKIOS oath works</h1><p className="muted">Everything is public and permanent once submitted. There is no admin wallet or operator override.</p></div></div>
     <section className="steps" aria-label="HORKIOS lifecycle">
-      {sections.map(([number, title, body]) => <article className="step" key={number}><span className="step-number">{number}</span><h2>{title}</h2><p>{body}</p></article>)}
+      {sections.map(([number, title, body]) => <article className="step" key={number}><span className="step-number">{number}</span><h3>{title}</h3><p>{body}</p></article>)}
     </section>
     <div className="card stack"><h2>Before testing</h2><p>HORKIOS currently runs its development gate on GenLayer Studionet. Use a Studionet-funded wallet and remember that test GEN has no monetary value.</p><div className="notice">Never share a private key, seed phrase, local environment file, or invitation secret in a bug report. A transaction hash and public wallet address are safe diagnostic inputs.</div><Link className="button bronze" href="/create">Create a test oath</Link></div>
   </div>;

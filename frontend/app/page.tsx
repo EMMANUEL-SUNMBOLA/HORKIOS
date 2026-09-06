@@ -3,36 +3,15 @@ import { OrbitMark } from "@/components/orbit-mark";
 
 const steps = [
   ["01", "Define", "Set public demands, evidence thresholds, and deadlines."],
-  [
-    "02",
-    "Commit",
-    "Fund the oath and invite the exact account expected to deliver.",
-  ],
-  [
-    "03",
-    "Verify",
-    "GenLayer validators inspect public proof against every term.",
-  ],
-  [
-    "04",
-    "Settle",
-    "Passing work pays automatically. Expired work returns to you.",
-  ],
+  ["02", "Commit", "Fund the oath and invite the exact account expected to deliver."],
+  ["03", "Verify", "GenLayer validators inspect public proof against every term."],
+  ["04", "Settle", "Passing work pays automatically. Expired work returns to you."],
 ];
 
 const principles = [
-  [
-    "Terms stay visible",
-    "Every demand, deadline, wallet, and decision becomes part of one public record.",
-  ],
-  [
-    "Proof, not promises",
-    "Settlement follows observable public evidence—not a marketplace operator's opinion.",
-  ],
-  [
-    "Money stays accountable",
-    "See what is locked, paid, charged, or refunded down to each demand.",
-  ],
+  ["Terms stay visible", "Every demand, deadline, wallet, and decision becomes part of one public record."],
+  ["Proof, not promises", "Settlement follows observable public evidence — not a marketplace operator's opinion."],
+  ["Money stays accountable", "See what is locked, paid, charged, or refunded down to each demand."],
 ];
 
 export default function Home() {
@@ -40,7 +19,7 @@ export default function Home() {
     <div className="landing">
       <section className="hero">
         <div className="hero-copy">
-          {/* <div className="status-pill"><span /> BUILT ON GENLAYER · BRADBURY</div> */}
+          <div className="status-pill"><span /> BUILT ON GENLAYER · BRADBURY</div>
           <h1>
             Make the promise.
             <br />
@@ -82,13 +61,7 @@ export default function Home() {
             <article className="step" key={number}>
               <span className="step-number">{number}</span>
               <div className="line-icon" aria-hidden="true">
-                {number === "01"
-                  ? "◇"
-                  : number === "02"
-                    ? "◎"
-                    : number === "03"
-                      ? "⌁"
-                      : "↗"}
+                {number === "01" ? "◇" : number === "02" ? "◎" : number === "03" ? "⌁" : "↗"}
               </div>
               <h3>{title}</h3>
               <p>{body}</p>
@@ -106,7 +79,7 @@ export default function Home() {
           </h2>
           <div>
             <p>
-              Named for Zeus Horkios—the guardian of oaths—HORKIOS replaces
+              Named for Zeus Horkios — the guardian of oaths — HORKIOS replaces
               private interpretation with explicit terms, visible evidence, and
               deterministic settlement.
             </p>

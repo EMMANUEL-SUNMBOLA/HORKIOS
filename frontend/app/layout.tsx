@@ -1,9 +1,24 @@
 import type { Metadata } from "next";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { WalletButton } from "@/components/wallet-button";
 import { contractAddress, networkName } from "@/lib/contract";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "HORKIOS — Programmable oaths",
@@ -12,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body>
         <Providers>
           <div className="shell">
@@ -26,7 +41,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               </nav>
             </header>
             <main className="page">{children}</main>
-            <footer className="footer"><span>HORKIOS © 2026</span><span>GENLAYER {networkName.toUpperCase()} · {contractAddress ? `${contractAddress.slice(0, 8)}…${contractAddress.slice(-6)}` : "CONTRACT NOT SET"}</span><span>TEST GEN HAS NO MONETARY VALUE</span></footer>
+            <footer className="footer">
+              <span>HORKIOS © 2026</span>
+              <span>GENLAYER {networkName.toUpperCase()} · {contractAddress ? `${contractAddress.slice(0, 8)}…${contractAddress.slice(-6)}` : "CONTRACT NOT SET"}</span>
+              <span>TEST GEN HAS NO MONETARY VALUE</span>
+            </footer>
           </div>
         </Providers>
       </body>
