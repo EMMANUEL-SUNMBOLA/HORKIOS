@@ -17,6 +17,7 @@ const principles = [
 export default function Home() {
   return (
     <div className="landing">
+      {/* ── Hero (light) ── */}
       <section className="hero">
         <div className="hero-copy">
           <div className="status-pill"><span /> BUILT ON GENLAYER · BRADBURY</div>
@@ -47,6 +48,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Process (light) ── */}
       <section className="process-section">
         <div className="section-intro">
           <span className="section-index">01 — PROCESS</span>
@@ -70,30 +72,34 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="manifesto">
-        <span className="section-index">02 — THE OATH</span>
-        <div className="manifesto-grid">
-          <h2>
-            A public agreement should be as clear after the work as it was
-            before it.
-          </h2>
-          <div>
-            <p>
-              Named for Zeus Horkios — the guardian of oaths — HORKIOS replaces
-              private interpretation with explicit terms, visible evidence, and
-              deterministic settlement.
-            </p>
-            <p>
-              No admin adjudicator. No hidden score. Just the promise and its
-              proof.
-            </p>
-            <Link className="text-link" href="/create">
-              WRITE YOUR FIRST OATH <span>↗</span>
-            </Link>
+      {/* ── Manifesto (dark) ── */}
+      <div className="band-dark">
+        <section className="manifesto">
+          <span className="section-index">02 — THE OATH</span>
+          <div className="manifesto-grid">
+            <h2>
+              A public agreement should be as clear after the work as it was
+              before it.
+            </h2>
+            <div>
+              <p>
+                Named for Zeus Horkios — the guardian of oaths — HORKIOS replaces
+                private interpretation with explicit terms, visible evidence, and
+                deterministic settlement.
+              </p>
+              <p>
+                No admin adjudicator. No hidden score. Just the promise and its
+                proof.
+              </p>
+              <Link className="text-link" href="/create">
+                WRITE YOUR FIRST OATH <span>↗</span>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
+      {/* ── Principles (light) ── */}
       <section className="principles-section">
         <div className="section-intro compact">
           <span className="section-index">03 — WHY HORKIOS</span>
@@ -110,25 +116,28 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="closing-cta">
-        <div>
-          <span className="section-index">TESTNET RELEASE</span>
-          <h2>
-            Turn the next campaign
-            <br />
-            into a verifiable oath.
-          </h2>
-        </div>
-        <div className="closing-action">
-          <p>
-            Public testnet GEN has no monetary value. Build, test, and learn how
-            programmable agreements behave.
-          </p>
-          <Link className="button primary" href="/create">
-            Start now <span>↗</span>
-          </Link>
-        </div>
-      </section>
+      {/* ── Closing CTA (dark) ── */}
+      <div className="band-dark">
+        <section className="closing-cta">
+          <div>
+            <span className="section-index">TESTNET RELEASE</span>
+            <h2>
+              Turn the next campaign
+              <br />
+              into a verifiable oath.
+            </h2>
+          </div>
+          <div className="closing-action">
+            <p>
+              Public testnet GEN has no monetary value. Build, test, and learn how
+              programmable agreements behave.
+            </p>
+            <Link className="button primary" href="/create">
+              Start now <span>↗</span>
+            </Link>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
