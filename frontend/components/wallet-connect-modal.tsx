@@ -74,7 +74,7 @@ export function WalletConnectModal({ onSuccess }: { onSuccess?: () => void }) {
 
   return <>
     <h2>Connect a wallet</h2>
-    <p className="confirm-message" style={{ marginBottom: 20 }}>
+    <p className="confirm-message wallet-connect-intro">
       Choose a wallet installed in your browser to continue.
     </p>
     {wallets.length === 0 && scanning && (
@@ -92,7 +92,7 @@ export function WalletConnectModal({ onSuccess }: { onSuccess?: () => void }) {
             {wallet.icon ? (
               <img src={wallet.icon} alt={wallet.name} />
             ) : (
-              <span style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid var(--graphite)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>🦊</span>
+              <span className="wallet-icon-fallback">🦊</span>
             )}
             <span className="wallet-option-name">
               {connecting === wallet.rdns ? "Connecting…" : wallet.name}
