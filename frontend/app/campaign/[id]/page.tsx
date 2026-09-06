@@ -5,6 +5,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { CampaignStatus, DemandStatus } from "@/components/status-badge";
 import { TxProgress } from "@/components/tx-progress";
+import { ConfirmModal } from "@/components/confirm-modal";
+import { useModal } from "@/components/modal";
 import { canonicalXUrl } from "@/lib/validation";
 import { formatDate, formatGen, truncateAddress } from "@/lib/format";
 import { readCampaign, requireContract, TransactionStatusUnavailableError, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
@@ -12,16 +14,38 @@ import { useWallet } from "@/lib/wallet";
 import type { TxStage } from "@/lib/types";
 import type { CalldataEncodable, Hash } from "genlayer-js/types";
 
+const confirmTitles: Record<string, string> = {
+  approve_counteroffer: "Approve counteroffer",
+  cancel_unaccepted_campaign: "Cancel oath",
+  expire_unaccepted_campaign: "Expire invitation",
+  finalize_expired_demand: "Final expired check",
+  request_termination: "Open termination case",
+  adjudicate_termination: "Request adjudication",
+};
+
+const confirmLabels: Record<string, string> = {
+  approve_counteroffer: "Approve all dates",
+  cancel_unaccepted_campaign: "Yes, cancel and refund",
+  expire_unaccepted_campaign: "Yes, expire and refund",
+  finalize_expired_demand: "Run final check",
+  request_termination: "Open 48-hour case",
+  adjudicate_termination: "Request ruling",
+};
+
+const dangerousActions = new Set(["cancel_unaccepted_campaign", "expire_unaccepted_campaign", "request_termination", "adjudicate_termination"]);
+
 export default function CampaignPage() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
   const queryClient = useQueryClient();
   const { address, connect, ensureNetwork } = useWallet();
+  const { showModal, hideModal } = useModal();
   const [evidence, setEvidence] = useState<Record<number, string>>({});
   const [stage, setStage] = useState<TxStage>("idle");
   const [hash, setHash] = useState<string>();
   const [error, setError] = useState<string>();
   const [monitoringDelayed, setMonitoringDelayed] = useState(false);
+  const [modalActive, setModalActive] = useState(false);
   const [nowSeconds, setNowSeconds] = useState(() => Math.floor(Date.now() / 1000));
   const [terminationCategory, setTerminationCategory] = useState("external_hardship");
   const [terminationStatement, setTerminationStatement] = useState("");
@@ -47,10 +71,34 @@ export default function CampaignPage() {
     adjudicate_termination: "Ask GenLayer for the final termination ruling now?",
   };
 
+  function confirmAction(functionName: string): Promise<boolean> {
+    return new Promise(resolve => {
+      showModal(() => (
+        <ConfirmModal
+          title={confirmTitles[functionName] || "Confirm action"}
+          message={confirmations[functionName]}
+          confirmLabel={confirmLabels[functionName] || "Confirm"}
+          variant={dangerousActions.has(functionName) ? "danger" : "default"}
+          onConfirm={() => resolve(true)}
+        />
+      ));
+      const checkResolved = setInterval(() => {
+        if (!document.querySelector(".modal-backdrop")) {
+          clearInterval(checkResolved);
+          resolve(false);
+        }
+      }, 100);
+    });
+  }
+
   async function transact(functionName: string, args: CalldataEncodable[]) {
     setError(undefined);
-    if (confirmations[functionName] && !window.confirm(confirmations[functionName])) return;
+    if (confirmations[functionName]) {
+      const confirmed = await confirmAction(functionName);
+      if (!confirmed) return;
+    }
     if (!address) { await connect(); return; }
+    setModalActive(true);
     try {
       await ensureNetwork(); setStage("signing");
       const txHash = await writeClient(address).writeContract({ address: requireContract(), functionName, args, value: 0n });
@@ -60,6 +108,22 @@ export default function CampaignPage() {
       await queryClient.invalidateQueries({ queryKey: ["campaign", id] });
     } catch (caught) { setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : caught instanceof TransactionStatusUnavailableError ? "status_unavailable" : "error"); setError(caught instanceof Error ? caught.message : "Transaction failed"); }
   }
+
+  function dismissModal() {
+    hideModal();
+    setModalActive(false);
+    setStage("idle");
+    setHash(undefined);
+    setMonitoringDelayed(false);
+  }
+
+  useEffect(() => {
+    if (!modalActive || stage === "idle") return;
+    showModal(() => (
+      <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onDismiss={dismissModal} />
+    ));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
+  }, [modalActive, stage, hash, monitoringDelayed]);
 
   if (campaignQuery.isLoading) return <div className="empty">Reading oath from GenLayer…</div>;
   if (campaignQuery.error || !campaign) return <div className="empty error">This oath could not be loaded. Check the contract configuration and campaign ID.</div>;
@@ -102,7 +166,7 @@ export default function CampaignPage() {
         {isParty && Number(campaign.status) === 2 && <div className="card stack"><h2>Request termination</h2><p className="muted">Past payouts remain final. Your statement and public evidence are permanent.</p><select className="select" value={terminationCategory} onChange={event => setTerminationCategory(event.target.value)}><option value="external_hardship">External hardship</option><option value="kol_breach">KOL breach or abandonment</option><option value="other">Other</option></select><textarea className="textarea" maxLength={2000} placeholder="Public statement" value={terminationStatement} onChange={event => setTerminationStatement(event.target.value)} /><textarea className="textarea" placeholder="Public HTTPS evidence URLs, one per line (max 5)" value={terminationUrls} onChange={event => setTerminationUrls(event.target.value)} /><button className="button danger" disabled={!terminationStatement.trim()} onClick={() => transact("request_termination", [id, terminationCategory, terminationStatement.trim(), parseUrls(terminationUrls)])}>Open 48-hour termination case</button></div>}
         {Number(campaign.status) === 3 && <div className="card stack"><h2>Termination case</h2><div className="summary-row"><span>Category</span><strong>{termination.category.replaceAll("_", " ")}</strong></div><p>{termination.statement}</p><p className="muted">Response deadline: {formatDate(termination.response_deadline)}</p>{termination.respondent_statement && <div className="notice"><strong>Response</strong><p>{termination.respondent_statement}</p></div>}{termination.reason && <div className="notice"><strong>Ruling {String(termination.ruling)}</strong><p>{termination.reason}</p></div>}{isParty && !isRequester && responseOpen && <><textarea className="textarea" maxLength={2000} placeholder="Public response (may be empty if evidence is supplied)" value={responseStatement} onChange={event => setResponseStatement(event.target.value)} /><textarea className="textarea" placeholder="Public HTTPS evidence URLs, one per line (max 5)" value={responseUrls} onChange={event => setResponseUrls(event.target.value)} /><button className="button bronze" onClick={() => transact("respond_to_termination", [id, responseStatement.trim(), parseUrls(responseUrls)])}>Submit one-time response</button></>}{isParty && adjudicationReady && <button className="button danger" onClick={() => transact("adjudicate_termination", [id])}>Ask GenLayer to adjudicate</button>}</div>}
         {error && <p className="error">{error}</p>}
-        <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />
+        {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />}
       </aside>
     </div>
   </>;

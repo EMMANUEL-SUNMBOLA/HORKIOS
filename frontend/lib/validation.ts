@@ -32,6 +32,6 @@ export function canonicalXUrl(value: string): string {
   const url = new URL(value.trim());
   if (url.protocol !== "https:" || !["x.com", "www.x.com", "twitter.com", "www.twitter.com"].includes(url.hostname.toLowerCase())) throw new Error("Use a public X status URL");
   const match = url.pathname.match(/^\/([A-Za-z0-9_]{1,15})\/status\/(\d+)\/?$/);
-  if (!match || url.search || url.hash) throw new Error("Use the canonical post URL without query parameters");
+  if (!match) throw new Error("URL must be a canonical X status link (x.com/{handle}/status/{id})");
   return `https://x.com/${match[1]}/status/${match[2]}`;
 }

@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "frontend"
+    "frontend",
+    "mcp-server"
   ],
   "scripts": {
     "dev": "npm run dev --workspace frontend",

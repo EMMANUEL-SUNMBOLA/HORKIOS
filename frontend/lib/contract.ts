@@ -14,7 +14,8 @@ export const contractAddress = process.env.NEXT_PUBLIC_HORKIOS_CONTRACT_ADDRESS 
 export const expectedReleaseId = "horkios-escrow-2026-08-storage-v2";
 
 const chains = { localnet, studionet, testnetBradbury } as const;
-const officialChain = chains[networkName as keyof typeof chains] ?? studionet;
+export const officialChain = chains[networkName as keyof typeof chains] ?? studionet;
+export const expectedChainId = officialChain.id;
 const browserRpc = hostedRpcUpstream(networkName) ? RPC_RELAY_PATH : officialChain.rpcUrls.default.http[0];
 export const chain = {
   ...officialChain,

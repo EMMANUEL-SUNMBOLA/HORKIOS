@@ -11,6 +11,7 @@ import { useWallet } from "@/lib/wallet";
 import type { CampaignDraft, DemandDraft, TxStage } from "@/lib/types";
 import type { Hash } from "genlayer-js/types";
 import { TxProgress } from "@/components/tx-progress";
+import { useModal } from "@/components/modal";
 
 const tomorrow = (days: number) => {
   const date = new Date(Date.now() + days * 86_400_000);
@@ -24,6 +25,7 @@ const newDemand = (weightBps = 10_000): DemandDraft => ({
 
 export default function CreatePage() {
   const { address, connect, ensureNetwork } = useWallet();
+  const { showModal, hideModal } = useModal();
   const [draft, setDraft] = useState<CampaignDraft>({
     title: "", description: "", xAccount: "", acceptanceDeadline: tomorrow(2), escrowGen: "10", demands: [newDemand()],
   });
@@ -32,6 +34,7 @@ export default function CreatePage() {
   const [error, setError] = useState<string>();
   const [invitation, setInvitation] = useState<string>();
   const [monitoringDelayed, setMonitoringDelayed] = useState(false);
+  const [modalActive, setModalActive] = useState(false);
   const recovering = useRef(false);
   const weightTotal = useMemo(() => draft.demands.reduce((sum, demand) => sum + demand.weightBps, 0), [draft.demands]);
 
@@ -66,11 +69,12 @@ export default function CreatePage() {
   }, [address]);
 
   async function submit() {
-    setError(undefined); setInvitation(undefined); setStage("idle");
+    setError(undefined); setInvitation(undefined); setStage("idle"); setModalActive(false);
     const parsed = campaignDraftSchema.safeParse(draft);
     if (!parsed.success) { setError(parsed.error.issues[0]?.message || "Review the campaign details"); return; }
     if (!address) { await connect(); return; }
     const secret = randomInviteSecret();
+    setModalActive(true);
     try {
       await ensureNetwork();
       const commitment = await inviteCommitment(secret);
@@ -105,6 +109,35 @@ export default function CreatePage() {
       setError(caught instanceof Error ? caught.message : "Campaign creation failed");
     }
   }
+
+  function dismissModal() {
+    hideModal();
+    setModalActive(false);
+    setStage("idle");
+    setHash(undefined);
+    setMonitoringDelayed(false);
+  }
+
+  useEffect(() => {
+    if (!modalActive || stage === "idle") return;
+    showModal(() => <>
+      <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onDismiss={dismissModal}
+        onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />
+      {invitation && <div style={{ marginTop: 20 }}>
+        <div className="success">Your oath is funded.</div>
+        <input className="input mono" readOnly value={invitation} style={{ marginTop: 12 }} />
+        <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+          <button className="button" onClick={async () => {
+            await navigator.clipboard.writeText(invitation);
+            if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); }
+          }}>Copy invitation</button>
+          <Link className="button secondary" href={invitation}>Open invitation</Link>
+        </div>
+        <p className="muted" style={{ marginTop: 10 }}>Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p>
+      </div>}
+    </>);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
+  }, [modalActive, stage, hash, monitoringDelayed, invitation]);
 
   return <>
     <div className="page-head"><div><div className="eyebrow">Creator workspace</div><h1 className="page-title">Create an oath</h1></div></div>
@@ -150,8 +183,8 @@ export default function CreatePage() {
           {error && <p className="error">{error}</p>}
           <button className="button bronze" onClick={submit}>{address ? "Fund and create oath" : "Connect wallet"}</button>
         </div>
-        <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />
-        {invitation && <div className="card stack"><div className="success">Your oath is funded.</div><input className="input mono" readOnly value={invitation} /><button className="button" onClick={async () => { await navigator.clipboard.writeText(invitation); if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); } }}>Copy invitation</button><p className="muted">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p><Link className="button secondary" href={invitation}>Open invitation</Link></div>}
+        {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />}
+        {!modalActive && invitation && <div className="card stack"><div className="success">Your oath is funded.</div><input className="input mono" readOnly value={invitation} /><button className="button" onClick={async () => { await navigator.clipboard.writeText(invitation); if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); } }}>Copy invitation</button><p className="muted">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p><Link className="button secondary" href={invitation}>Open invitation</Link></div>}
       </aside>
     </div>
   </>;

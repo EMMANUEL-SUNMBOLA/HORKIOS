@@ -2,8 +2,9 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TxProgress } from "@/components/tx-progress";
+import { useModal } from "@/components/modal";
 import { formatDate, formatGen, truncateAddress } from "@/lib/format";
 import { readInviteFragment } from "@/lib/invite";
 import { readCampaign, requireContract, TransactionStatusUnavailableError, UndeterminedTransactionError, waitForOutcome, writeClient } from "@/lib/contract";
@@ -14,17 +15,20 @@ import type { Hash } from "genlayer-js/types";
 export default function InvitePage() {
   const params = useParams<{ id: string }>(); const router = useRouter(); const id = Number(params.id);
   const { address, connect, ensureNetwork } = useWallet();
+  const { showModal, hideModal } = useModal();
   const [secret] = useState<string | null>(() => readInviteFragment());
   const [accepted, setAccepted] = useState<boolean[]>([]);
   const [dates, setDates] = useState<string[]>([]);
   const [stage, setStage] = useState<TxStage>("idle");
   const [hash, setHash] = useState<string>(); const [error, setError] = useState<string>();
   const [monitoringDelayed, setMonitoringDelayed] = useState(false);
+  const [modalActive, setModalActive] = useState(false);
   const query = useQuery({ queryKey: ["campaign", id], queryFn: () => readCampaign(id) });
 
   async function review() {
     if (!secret) { setError("This invitation link is missing its secret fragment"); return; }
     if (!address) { await connect(); return; }
+    setModalActive(true);
     try {
       await ensureNetwork(); setStage("signing");
       const reviews = campaign!.demands.map((_, index) => accepted[index] ?? true);
@@ -39,6 +43,22 @@ export default function InvitePage() {
       setHash(txHash); setStage("submitted"); await waitForOutcome(txHash as Hash, { onAccepted: () => setStage("accepted"), onMonitoringDelay: setMonitoringDelayed }); setStage("finalized"); router.push(`/campaign/${id}`);
     } catch (caught) { setStage(caught instanceof UndeterminedTransactionError ? "undetermined" : caught instanceof TransactionStatusUnavailableError ? "status_unavailable" : "error"); setError(caught instanceof Error ? caught.message : "Review failed"); }
   }
+
+  function dismissModal() {
+    hideModal();
+    setModalActive(false);
+    setStage("idle");
+    setHash(undefined);
+    setMonitoringDelayed(false);
+  }
+
+  useEffect(() => {
+    if (!modalActive || stage === "idle") return;
+    showModal(() => (
+      <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onDismiss={dismissModal} />
+    ));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
+  }, [modalActive, stage, hash, monitoringDelayed]);
 
   const campaign = query.data;
   if (query.isLoading) return <div className="empty">Opening private invitation…</div>;
@@ -56,7 +76,7 @@ export default function InvitePage() {
           {accepted[index] === false && <input className="input" type="datetime-local" min={new Date((Number(demand.original_deadline) + 60) * 1000).toISOString().slice(0, 16)} value={dates[index] ?? ""} onChange={event => setDates(values => { const next = [...values]; next[index] = event.target.value; return next; })} />}
         </article>)}
       </section>
-      <aside className="stack sticky"><div className="card stack"><h2>Before you sign</h2><div className="notice">Terms, wallet addresses, evidence, and decisions are public.</div><div className="summary-row"><span>Gross compensation</span><strong>{formatGen(campaign.original_escrow)}</strong></div><button className="button bronze" disabled={!secret} onClick={review}>{address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}</button>{error && <p className="error">{error}</p>}</div><TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} /></aside>
+      <aside className="stack sticky"><div className="card stack"><h2>Before you sign</h2><div className="notice">Terms, wallet addresses, evidence, and decisions are public.</div><div className="summary-row"><span>Gross compensation</span><strong>{formatGen(campaign.original_escrow)}</strong></div><button className="button bronze" disabled={!secret} onClick={review}>{address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}</button>{error && <p className="error">{error}</p>}</div>{!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />}</aside>
     </div>
   </>;
 }
