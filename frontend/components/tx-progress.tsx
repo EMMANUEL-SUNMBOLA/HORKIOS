@@ -15,6 +15,6 @@ export function TxProgress({ stage, hash, monitoringDelayed = false, onResume, o
     {stage === "status_unavailable" && <><p className="notice">Status is temporarily unavailable. Do not submit again—the transaction may already have succeeded.</p>{onResume && <button className="button secondary" onClick={onResume}>Resume monitoring</button>}</>}
     {stage === "error" && <p className="error">The transaction did not complete.</p>}
     {hash && <div className="mono muted">{hash}</div>}
-    {showDismiss && <button className="button secondary" style={{ marginTop: 12 }} onClick={onDismiss}>Close</button>}
+    {showDismiss && <button className="button secondary progress-close" onClick={onDismiss}>Close</button>}
   </div>;
 }

@@ -123,17 +123,17 @@ export default function CreatePage() {
     showModal(() => <>
       <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onDismiss={dismissModal}
         onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />
-      {invitation && <div style={{ marginTop: 20 }}>
-        <div className="success">Your oath is funded.</div>
-        <input className="input mono" readOnly value={invitation} style={{ marginTop: 12 }} />
-        <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+      {invitation && <div className="invite-success-block">
+        <div className="invite-success">Your oath is funded.</div>
+        <input className="input mono invite-input" readOnly value={invitation} />
+        <div className="invite-actions">
           <button className="button" onClick={async () => {
             await navigator.clipboard.writeText(invitation);
             if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); }
           }}>Copy invitation</button>
           <Link className="button secondary" href={invitation}>Open invitation</Link>
         </div>
-        <p className="muted" style={{ marginTop: 10 }}>Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p>
+        <p className="invite-note">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p>
       </div>}
     </>);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
@@ -184,7 +184,7 @@ export default function CreatePage() {
           <button className="button bronze" onClick={submit}>{address ? "Fund and create oath" : "Connect wallet"}</button>
         </div>
         {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />}
-        {!modalActive && invitation && <div className="card stack"><div className="success">Your oath is funded.</div><input className="input mono" readOnly value={invitation} /><button className="button" onClick={async () => { await navigator.clipboard.writeText(invitation); if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); } }}>Copy invitation</button><p className="muted">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p><Link className="button secondary" href={invitation}>Open invitation</Link></div>}
+        {!modalActive && invitation && <div className="card stack"><div className="invite-success">Your oath is funded.</div><input className="input mono invite-input" readOnly value={invitation} /><button className="button" onClick={async () => { await navigator.clipboard.writeText(invitation); if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); } }}>Copy invitation</button><p className="invite-note">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p><Link className="button secondary" href={invitation}>Open invitation</Link></div>}
       </aside>
     </div>
   </>;
