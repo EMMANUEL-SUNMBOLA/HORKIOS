@@ -2,7 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useModal } from "./modal";
+import { useModal } from "@/components/modal";
 import { useWallet, type EthereumProvider } from "@/lib/wallet";
 import { useRouter } from "next/navigation";
 

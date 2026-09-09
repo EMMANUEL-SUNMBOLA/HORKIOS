@@ -10,7 +10,9 @@ import { clearPendingCreate, loadPendingCreate, savePendingCreate, type PendingC
 import { useWallet } from "@/lib/wallet";
 import type { CampaignDraft, DemandDraft, TxStage } from "@/lib/types";
 import type { Hash } from "genlayer-js/types";
-import { TxProgress } from "@/components/tx-progress";
+import { TxProgress } from "@/components/ui/tx-progress";
+import { GlassCard } from "@/components/ui/glass-card";
+import { SectionLabel } from "@/components/ui/section-label";
 import { useModal } from "@/components/modal";
 
 const tomorrow = (days: number) => {
@@ -123,68 +125,240 @@ export default function CreatePage() {
     showModal(() => <>
       <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onDismiss={dismissModal}
         onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />
-      {invitation && <div className="invite-success-block">
-        <div className="invite-success">Your oath is funded.</div>
-        <input className="input mono invite-input" readOnly value={invitation} />
-        <div className="invite-actions">
-          <button className="button" onClick={async () => {
+      {invitation && <div className="glass grid gap-4 rounded-2xl p-6">
+        <div className="text-green font-medium">Your oath is funded.</div>
+        <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone font-mono text-[13px] tabular-nums" readOnly value={invitation} />
+        <div className="flex gap-2">
+          <button className="glass-input rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" onClick={async () => {
             await navigator.clipboard.writeText(invitation);
             if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); }
           }}>Copy invitation</button>
-          <Link className="button secondary" href={invitation}>Open invitation</Link>
+          <Link className="glass-input inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" href={invitation}>Open invitation</Link>
         </div>
-        <p className="invite-note">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p>
+        <p className="text-ash text-[13px] leading-relaxed">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p>
       </div>}
     </>);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
   }, [modalActive, stage, hash, monitoringDelayed, invitation]);
 
   return <>
-    <div className="page-head"><div><div className="eyebrow">Creator workspace</div><h1 className="page-title">Create an oath</h1></div></div>
-    <div className="grid">
-      <section className="stack">
-        <div className="card stack">
-          <h2>1. Campaign basics</h2>
-          <div className="notice">Every term, reason, and submitted proof is public and permanent.</div>
-          <div className="field"><label htmlFor="title">Campaign title</label><input id="title" className="input" maxLength={120} value={draft.title} onChange={event => update("title", event.target.value)} /></div>
-          <div className="field"><label htmlFor="description">Public description</label><textarea id="description" className="textarea" maxLength={2000} value={draft.description} onChange={event => update("description", event.target.value)} /></div>
-          <div className="field-row">
-            <div className="field"><label htmlFor="account">Expected X account</label><input id="account" className="input" placeholder="@handle" value={draft.xAccount} onChange={event => update("xAccount", event.target.value)} /></div>
-            <div className="field"><label htmlFor="acceptance">Invitation expires</label><input id="acceptance" className="input" type="datetime-local" value={draft.acceptanceDeadline} onChange={event => update("acceptanceDeadline", event.target.value)} /></div>
-            <div className="field"><label htmlFor="escrow">Escrow (GEN)</label><input id="escrow" className="input" inputMode="decimal" value={draft.escrowGen} onChange={event => update("escrowGen", event.target.value)} /></div>
+    <div className="mb-12 flex items-end justify-between gap-8 max-[900px]:flex-col max-[900px]:items-start">
+      <div>
+        <SectionLabel label="Creator Workspace" className="mb-6" />
+        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-bone sm:text-[42px]">
+          Create an oath
+        </h1>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-6 items-start max-[900px]:grid-cols-1">
+      <section className="grid gap-4">
+        {/* Campaign basics */}
+        <GlassCard className="p-6">
+          <h2 className="mt-0 mb-4 font-display text-[18px] font-semibold tracking-[-0.02em] text-bone">
+            1. Campaign basics
+          </h2>
+          <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-3 text-[13px] leading-[1.5] text-fog">
+            Every term, reason, and submitted proof is public and permanent.
           </div>
-        </div>
-        <div className="stack">
-          <div className="demand-head"><h2>2. Demands</h2><span className={weightTotal === 10_000 ? "success" : "error"}>{(weightTotal / 100).toFixed(2)}% allocated</span></div>
-          {draft.demands.map((demand, index) => <article className="card demand" key={index}>
-            <div className="demand-head"><strong>Demand {index + 1}</strong>{draft.demands.length > 1 && <button className="button secondary" onClick={() => removeDemand(index)}>Remove</button>}</div>
-            <div className="field"><label htmlFor={`instructions-${index}`}>Required content</label><textarea id={`instructions-${index}`} className="textarea" maxLength={1000} value={demand.instructions} onChange={event => updateDemand(index, { instructions: event.target.value })} /></div>
-            <div className="field-row">
-              <div className="field"><label>Weight (%)</label><input className="input" type="number" min="0.01" max="100" step="0.01" value={demand.weightBps / 100} onChange={event => updateDemand(index, { weightBps: Math.round(Number(event.target.value) * 100) })} /></div>
-              <div className="field"><label>Deadline</label><input className="input" type="datetime-local" value={demand.deadline} onChange={event => updateDemand(index, { deadline: event.target.value })} /></div>
-              <div className="field"><label>Minimum views</label><input className="input" type="number" min="0" value={demand.minViews} onChange={event => updateDemand(index, { minViews: Number(event.target.value) })} /></div>
+          <div className="mt-4 grid gap-3">
+            <div className="grid gap-1.5">
+              <label className="section-label text-[10px]" htmlFor="title">
+                <span className="section-label-slash">/</span>
+                <span className="ml-1">Campaign title</span>
+              </label>
+              <input id="title" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" maxLength={120} value={draft.title} onChange={event => update("title", event.target.value)} />
             </div>
-            <div className="field-row">
-              <div className="field"><label>Minimum likes</label><input className="input" type="number" min="0" value={demand.minLikes} onChange={event => updateDemand(index, { minLikes: Number(event.target.value) })} /></div>
-              <div className="field"><label>Minimum reposts</label><input className="input" type="number" min="0" value={demand.minReposts} onChange={event => updateDemand(index, { minReposts: Number(event.target.value) })} /></div>
+            <div className="grid gap-1.5">
+              <label className="section-label text-[10px]" htmlFor="description">
+                <span className="section-label-slash">/</span>
+                <span className="ml-1">Public description</span>
+              </label>
+              <textarea id="description" className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical" maxLength={2000} value={draft.description} onChange={event => update("description", event.target.value)} />
             </div>
-          </article>)}
-          <button className="button secondary" disabled={draft.demands.length >= 10} onClick={addDemand}>Add demand</button>
+            <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
+              <div className="grid gap-1.5">
+                <label className="section-label text-[10px]" htmlFor="account">
+                  <span className="section-label-slash">/</span>
+                  <span className="ml-1">Expected X account</span>
+                </label>
+                <input id="account" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" placeholder="@handle" value={draft.xAccount} onChange={event => update("xAccount", event.target.value)} />
+              </div>
+              <div className="grid gap-1.5">
+                <label className="section-label text-[10px]" htmlFor="acceptance">
+                  <span className="section-label-slash">/</span>
+                  <span className="ml-1">Invitation expires</span>
+                </label>
+                <input id="acceptance" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="datetime-local" value={draft.acceptanceDeadline} onChange={event => update("acceptanceDeadline", event.target.value)} />
+              </div>
+              <div className="grid gap-1.5">
+                <label className="section-label text-[10px]" htmlFor="escrow">
+                  <span className="section-label-slash">/</span>
+                  <span className="ml-1">Escrow (GEN)</span>
+                </label>
+                <input id="escrow" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" inputMode="decimal" value={draft.escrowGen} onChange={event => update("escrowGen", event.target.value)} />
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Demands */}
+        <div className="grid gap-4">
+          <div className="flex items-center justify-between gap-3.5">
+            <h2 className="mt-0 font-display text-[18px] font-semibold tracking-[-0.02em] text-bone">
+              2. Demands
+            </h2>
+            <span className={`font-mono text-[11px] uppercase tracking-[0.16em] ${weightTotal === 10_000 ? "text-green" : "text-red"}`}>
+              {(weightTotal / 100).toFixed(2)}% allocated
+            </span>
+          </div>
+          {draft.demands.map((demand, index) => (
+            <GlassCard key={index} className="p-6">
+              <div className="flex items-center justify-between gap-3.5 mb-4">
+                <strong className="font-display text-[14px] font-medium text-bone">Demand {index + 1}</strong>
+                {draft.demands.length > 1 && (
+                  <button className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" onClick={() => removeDemand(index)}>
+                    Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid gap-3">
+                <div className="grid gap-1.5">
+                  <label className="section-label text-[10px]" htmlFor={`instructions-${index}`}>
+                    <span className="section-label-slash">/</span>
+                    <span className="ml-1">Required content</span>
+                  </label>
+                  <textarea id={`instructions-${index}`} className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical" maxLength={1000} value={demand.instructions} onChange={event => updateDemand(index, { instructions: event.target.value })} />
+                </div>
+                <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
+                  <div className="grid gap-1.5">
+                    <label className="section-label text-[10px]">
+                      <span className="section-label-slash">/</span>
+                      <span className="ml-1">Weight (%)</span>
+                    </label>
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0.01" max="100" step="0.01" value={demand.weightBps / 100} onChange={event => updateDemand(index, { weightBps: Math.round(Number(event.target.value) * 100) })} />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <label className="section-label text-[10px]">
+                      <span className="section-label-slash">/</span>
+                      <span className="ml-1">Deadline</span>
+                    </label>
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="datetime-local" value={demand.deadline} onChange={event => updateDemand(index, { deadline: event.target.value })} />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <label className="section-label text-[10px]">
+                      <span className="section-label-slash">/</span>
+                      <span className="ml-1">Minimum views</span>
+                    </label>
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0" value={demand.minViews} onChange={event => updateDemand(index, { minViews: Number(event.target.value) })} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
+                  <div className="grid gap-1.5">
+                    <label className="section-label text-[10px]">
+                      <span className="section-label-slash">/</span>
+                      <span className="ml-1">Minimum likes</span>
+                    </label>
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0" value={demand.minLikes} onChange={event => updateDemand(index, { minLikes: Number(event.target.value) })} />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <label className="section-label text-[10px]">
+                      <span className="section-label-slash">/</span>
+                      <span className="ml-1">Minimum reposts</span>
+                    </label>
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0" value={demand.minReposts} onChange={event => updateDemand(index, { minReposts: Number(event.target.value) })} />
+                  </div>
+                </div>
+              </div>
+            </GlassCard>
+          ))}
+          <button className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" disabled={draft.demands.length >= 10} onClick={addDemand}>
+            Add demand
+          </button>
         </div>
       </section>
-      <aside className="stack sticky">
-        <div className="card stack"><h2>Escrow summary</h2>
-          <div className="summary-row"><span>Total</span><strong>{draft.escrowGen || "0"} GEN</strong></div>
-          <div className="summary-row"><span>Demands</span><strong>{draft.demands.length}</strong></div>
-          <div className="summary-row"><span>Platform fee</span><span>1% of payouts</span></div>
-          <div className="summary-row"><span>Refund fee</span><span>0%</span></div>
-          <div className="divider" />
-          {draft.demands.map((demand, index) => <div className="summary-row" key={index}><span>Demand {index + 1}</span><span>{(() => { try { return formatGen(parseGen(draft.escrowGen || "0") * BigInt(demand.weightBps) / 10_000n); } catch { return "—"; } })()}</span></div>)}
-          {error && <p className="error">{error}</p>}
-          <button className="button bronze" onClick={submit}>{address ? "Fund and create oath" : "Connect wallet"}</button>
-        </div>
-        {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />}
-        {!modalActive && invitation && <div className="card stack"><div className="invite-success">Your oath is funded.</div><input className="input mono invite-input" readOnly value={invitation} /><button className="button" onClick={async () => { await navigator.clipboard.writeText(invitation); if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); } }}>Copy invitation</button><p className="invite-note">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p><Link className="button secondary" href={invitation}>Open invitation</Link></div>}
+
+      {/* Sidebar */}
+      <aside className="grid gap-4 max-[900px]:static sticky top-[88px]">
+        <GlassCard className="p-6">
+          <h2 className="mt-0 mb-4 font-display text-[18px] font-semibold tracking-[-0.02em] text-bone">
+            Escrow summary
+          </h2>
+          <div className="grid gap-2">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Total</span>
+              <strong className="font-mono font-medium text-bone">{draft.escrowGen || "0"} GEN</strong>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Demands</span>
+              <strong className="font-mono font-medium text-bone">{draft.demands.length}</strong>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Platform fee</span>
+              <span className="text-ash">1% of payouts</span>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Refund fee</span>
+              <span className="text-ash">0%</span>
+            </div>
+            <div className="h-px bg-glass-border-subtle my-1" />
+            {draft.demands.map((demand, index) => (
+              <div className="flex justify-between gap-4 py-2 text-[14px] text-fog" key={index}>
+                <span>Demand {index + 1}</span>
+                <span className="font-mono text-[13px] tabular-nums text-bone">
+                  {(() => {
+                    try {
+                      return formatGen(parseGen(draft.escrowGen || "0") * BigInt(demand.weightBps) / 10_000n);
+                    } catch {
+                      return "—";
+                    }
+                  })()}
+                </span>
+              </div>
+            ))}
+          </div>
+          {error && <p className="mt-4 text-[13px] text-red">{error}</p>}
+          <button
+            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-bone"
+            onClick={submit}
+          >
+            {address ? "Fund and create oath" : "Connect wallet"}
+          </button>
+        </GlassCard>
+
+        {!modalActive && (
+          <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} onResume={() => {
+            if (address && contractAddress) {
+              const pending = loadPendingCreate(networkName, contractAddress, address);
+              if (pending) void monitorPending(pending);
+            }
+          }} />
+        )}
+
+        {!modalActive && invitation && (
+          <GlassCard className="p-6">
+            <div className="text-green font-medium mb-4">Your oath is funded.</div>
+            <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone font-mono text-[13px] tabular-nums mb-4" readOnly value={invitation} />
+            <button
+              className="glass-input inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]"
+              onClick={async () => {
+                await navigator.clipboard.writeText(invitation);
+                if (address && contractAddress) {
+                  const pending = loadPendingCreate(networkName, contractAddress, address);
+                  if (pending) clearPendingCreate(pending);
+                }
+              }}
+            >
+              Copy invitation
+            </button>
+            <p className="mt-4 text-ash text-[13px] leading-relaxed">
+              Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.
+            </p>
+            <Link className="glass-input mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" href={invitation}>
+              Open invitation
+            </Link>
+          </GlassCard>
+        )}
       </aside>
     </div>
   </>;

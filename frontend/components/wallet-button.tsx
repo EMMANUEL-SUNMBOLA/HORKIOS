@@ -5,16 +5,29 @@ import { useRouter } from "next/navigation";
 import { useWallet } from "@/lib/wallet";
 import { truncateAddress } from "@/lib/format";
 import { networkName } from "@/lib/contract";
-import { useModal } from "./modal";
-import { WalletConnectModal } from "./wallet-connect-modal";
+import { useModal } from "@/components/modal";
+import { WalletConnectModal } from "@/components/wallet-connect-modal";
 
-const networkLabel = networkName === "testnetBradbury" ? "Bradbury"
-  : networkName === "studionet" ? "Studionet"
-  : networkName === "localnet" ? "Localnet"
-  : networkName;
+const networkLabel =
+  networkName === "testnetBradbury"
+    ? "Bradbury"
+    : networkName === "studionet"
+      ? "Studionet"
+      : networkName === "localnet"
+        ? "Localnet"
+        : networkName;
 
 export function WalletButton() {
-  const { address, wrongChain, disconnect, connecting, switching, switchError, error, switchChain } = useWallet();
+  const {
+    address,
+    wrongChain,
+    disconnect,
+    connecting,
+    switching,
+    switchError,
+    error,
+    switchChain,
+  } = useWallet();
   const { showModal } = useModal();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -62,25 +75,82 @@ export function WalletButton() {
     }
   }
 
-  if (!address) return <button className="button secondary wallet" onClick={handleConnect} disabled={connecting} title={error}>
-    {connecting ? "Connecting…" : "Connect wallet"}
-  </button>;
+  if (!address)
+    return (
+      <button
+        className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-bone transition-colors duration-200 hover:bg-white/[0.06]"
+        onClick={handleConnect}
+        disabled={connecting}
+        title={error}
+      >
+        {connecting ? "Connecting…" : "Connect wallet"}
+      </button>
+    );
 
-  if (wrongChain) return <div className="wallet-wrong-chain">
-    <button className="button secondary wallet wallet-trigger wrong-chain" onClick={handleSwitch} disabled={switching}>
-      <span className="wallet-live wrong-chain" />{switching ? "Switching…" : `Switch to ${networkLabel}`}
-    </button>
-    {switchError && <div className="wallet-switch-error">{switchError}</div>}
-  </div>;
+  if (wrongChain)
+    return (
+      <div className="relative" ref={menuRef}>
+        <button
+          className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-amber transition-colors duration-200 hover:bg-white/[0.06]"
+          onClick={handleSwitch}
+          disabled={switching}
+        >
+          <span className="h-2 w-2 rounded-full bg-amber horkios-pulse" />
+          {switching ? "Switching…" : `Switch to ${networkLabel}`}
+        </button>
+        {switchError && (
+          <div className="absolute right-0 top-full mt-2 rounded-lg border border-red/20 bg-black/90 px-3 py-2 text-[12px] text-red backdrop-blur-xl">
+            {switchError}
+          </div>
+        )}
+      </div>
+    );
 
-  return <div className="wallet-menu" ref={menuRef}>
-    <button className="button secondary wallet wallet-trigger" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-haspopup="menu">
-      <span className="wallet-live" />{truncateAddress(address)}<span className="wallet-chevron">⌄</span>
-    </button>
-    {open && <div className="wallet-dropdown" role="menu">
-      <div className="wallet-dropdown-head"><span>CONNECTED WALLET</span><strong>{truncateAddress(address)}</strong></div>
-      <button role="menuitem" onClick={copyAddress}><span>{copied ? "Address copied" : "Copy address"}</span><i>{copied ? "✓" : "□"}</i></button>
-      <button role="menuitem" onClick={handleDisconnect}><span>Disconnect</span><i>↗</i></button>
-    </div>}
-  </div>;
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-bone transition-colors duration-200 hover:bg-white/[0.06]"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+      >
+        <span className="h-2 w-2 rounded-full bg-green horkios-pulse" />
+        {truncateAddress(address)}
+        <svg
+          className={`h-3 w-3 text-fog transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          viewBox="0 0 12 12"
+          fill="none"
+        >
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="glass absolute right-0 top-full mt-2 min-w-[200px] p-2" role="menu">
+          <div className="border-b border-glass-border-subtle px-3 py-2">
+            <span className="section-label text-[10px]">
+              <span className="section-label-slash">/</span>
+              <span className="ml-1">Connected Wallet</span>
+            </span>
+            <div className="mt-1 font-mono text-[13px] text-bone">{truncateAddress(address)}</div>
+          </div>
+          <button
+            role="menuitem"
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-fog transition-colors hover:bg-white/[0.04] hover:text-bone"
+            onClick={copyAddress}
+          >
+            <span>{copied ? "Address copied" : "Copy address"}</span>
+            <span className="text-ash">{copied ? "✓" : "⎘"}</span>
+          </button>
+          <button
+            role="menuitem"
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-fog transition-colors hover:bg-white/[0.04] hover:text-bone"
+            onClick={handleDisconnect}
+          >
+            <span>Disconnect</span>
+            <span className="text-ash">↗</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }

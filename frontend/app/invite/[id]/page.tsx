@@ -3,7 +3,9 @@
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { TxProgress } from "@/components/tx-progress";
+import { TxProgress } from "@/components/ui/tx-progress";
+import { GlassCard } from "@/components/ui/glass-card";
+import { SectionLabel } from "@/components/ui/section-label";
 import { useModal } from "@/components/modal";
 import { formatDate, formatGen, truncateAddress } from "@/lib/format";
 import { readInviteFragment } from "@/lib/invite";
@@ -61,22 +63,136 @@ export default function InvitePage() {
   }, [modalActive, stage, hash, monitoringDelayed]);
 
   const campaign = query.data;
-  if (query.isLoading) return <div className="empty">Opening private invitation…</div>;
-  if (!campaign) return <div className="empty error">Invitation campaign not found.</div>;
+  if (query.isLoading) return <div className="glass flex items-center justify-center rounded-2xl px-6 py-16 text-center text-fog">
+    <span className="horkios-pulse mr-2.5 inline-block h-1.5 w-1.5 rounded-full bg-green" />
+    Opening private invitation…
+  </div>;
+  if (!campaign) return <div className="glass flex items-center justify-center rounded-2xl px-6 py-16 text-center text-red">
+    Invitation campaign not found.
+  </div>;
+
   return <>
-    <div className="page-head"><div><div className="eyebrow">Private invitation · Oath #{id}</div><h1 className="page-title">You have been invited to swear an oath.</h1><p className="muted">Creator {truncateAddress(campaign.creator)} · @{campaign.x_account} · expires {formatDate(campaign.acceptance_deadline)}</p></div></div>
-    {!secret && <div className="notice">The invitation secret is missing. Ask the creator for the complete link.</div>}
-    <div className="grid">
-      <section className="stack">
-        {campaign.demands.map((demand, index) => <article className="card demand" key={index}>
-          <div className="demand-head"><strong>Demand {index + 1} of {campaign.demands.length}</strong><strong>{formatGen(demand.allocation)} gross</strong></div>
-          <p>{demand.instructions}</p><div className="metrics"><span className="metric">Views ≥ {String(demand.min_views)}</span><span className="metric">Likes ≥ {String(demand.min_likes)}</span><span className="metric">Due {formatDate(demand.original_deadline)}</span></div>
-          <label><input type="radio" name={`review-${index}`} checked={accepted[index] ?? true} onChange={() => setAccepted(values => { const next = [...values]; next[index] = true; return next; })} /> Accept this demand</label>
-          <label><input type="radio" name={`review-${index}`} checked={accepted[index] === false} onChange={() => setAccepted(values => { const next = [...values]; next[index] = false; return next; })} /> Propose a later deadline</label>
-          {accepted[index] === false && <input className="input" type="datetime-local" min={new Date((Number(demand.original_deadline) + 60) * 1000).toISOString().slice(0, 16)} value={dates[index] ?? ""} onChange={event => setDates(values => { const next = [...values]; next[index] = event.target.value; return next; })} />}
-        </article>)}
+    <div className="mb-12 flex items-end justify-between gap-8 max-[900px]:flex-col max-[900px]:items-start">
+      <div>
+        <SectionLabel label={`Private invitation · Oath #${id}`} className="mb-6" />
+        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-bone sm:text-[42px]">
+          You have been invited to swear an oath.
+        </h1>
+        <p className="mt-3 text-[14px] text-fog">
+          Creator {truncateAddress(campaign.creator)} · @{campaign.x_account} · expires {formatDate(campaign.acceptance_deadline)}
+        </p>
+      </div>
+    </div>
+
+    {!secret && (
+      <div className="glass-inner mb-6 rounded-xl border-l-[3px] border-l-copper p-4 text-[13px] leading-[1.5] text-fog">
+        The invitation secret is missing. Ask the creator for the complete link.
+      </div>
+    )}
+
+    <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-6 items-start max-[900px]:grid-cols-1">
+      <section className="grid gap-4">
+        {campaign.demands.map((demand, index) => (
+          <GlassCard key={index} className="p-6">
+            <div className="flex items-center justify-between gap-3.5 mb-4">
+              <strong className="font-display text-[14px] font-medium text-bone">
+                Demand {index + 1} of {campaign.demands.length}
+              </strong>
+              <strong className="font-mono text-[14px] font-medium text-bone">
+                {formatGen(demand.allocation)} gross
+              </strong>
+            </div>
+
+            <p className="mb-4 text-[14px] leading-[1.5] text-fog">{demand.instructions}</p>
+
+            {/* Requirements */}
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+                Views ≥ {String(demand.min_views)}
+              </span>
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+                Likes ≥ {String(demand.min_likes)}
+              </span>
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+                Due {formatDate(demand.original_deadline)}
+              </span>
+            </div>
+
+            {/* Accept/Counter radio */}
+            <div className="grid gap-2">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name={`review-${index}`}
+                  checked={accepted[index] ?? true}
+                  onChange={() => setAccepted(values => {
+                    const next = [...values];
+                    next[index] = true;
+                    return next;
+                  })}
+                  className="accent-green"
+                />
+                <span className="text-[14px] text-bone">Accept this demand</span>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name={`review-${index}`}
+                  checked={accepted[index] === false}
+                  onChange={() => setAccepted(values => {
+                    const next = [...values];
+                    next[index] = false;
+                    return next;
+                  })}
+                  className="accent-amber"
+                />
+                <span className="text-[14px] text-bone">Propose a later deadline</span>
+              </label>
+              {accepted[index] === false && (
+                <input
+                  className="glass-input mt-2 w-full rounded-full px-4 py-2.5 text-bone text-[14px]"
+                  type="datetime-local"
+                  min={new Date((Number(demand.original_deadline) + 60) * 1000).toISOString().slice(0, 16)}
+                  value={dates[index] ?? ""}
+                  onChange={event => setDates(values => {
+                    const next = [...values];
+                    next[index] = event.target.value;
+                    return next;
+                  })}
+                />
+              )}
+            </div>
+          </GlassCard>
+        ))}
       </section>
-      <aside className="stack sticky"><div className="card stack"><h2>Before you sign</h2><div className="notice">Terms, wallet addresses, evidence, and decisions are public.</div><div className="summary-row"><span>Gross compensation</span><strong>{formatGen(campaign.original_escrow)}</strong></div><button className="button bronze" disabled={!secret} onClick={review}>{address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}</button>{error && <p className="error">{error}</p>}</div>{!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />}</aside>
+
+      {/* Sidebar */}
+      <aside className="max-[900px]:static sticky top-[88px]">
+        <GlassCard className="p-6">
+          <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Before you sign</h2>
+
+          <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-3 text-[13px] leading-[1.5] text-fog mb-4">
+            Terms, wallet addresses, evidence, and decisions are public.
+          </div>
+
+          <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <span>Gross compensation</span>
+            <strong className="font-mono font-medium text-bone">{formatGen(campaign.original_escrow)}</strong>
+          </div>
+
+          <button
+            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-bone"
+            disabled={!secret}
+            onClick={review}
+          >
+            {address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}
+          </button>
+
+          {error && <p className="mt-3 text-[13px] text-red">{error}</p>}
+        </GlassCard>
+
+        {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />}
+      </aside>
     </div>
   </>;
 }

@@ -1,28 +1,20 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter, JetBrains_Mono } from "next/font/google";
-import Link from "next/link";
+import { Inter_Tight, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { WalletButton } from "@/components/wallet-button";
-import { contractAddress, networkName } from "@/lib/contract";
+import { Header } from "@/components/layout/header";
+import { MobileHeader } from "@/components/layout/mobile-header";
+import { Footer } from "@/components/layout/footer";
 
-const playfairDisplay = Playfair_Display({
+const interTight = Inter_Tight({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-body",
-  display: "swap",
-});
-
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -32,27 +24,23 @@ export const metadata: Metadata = {
   description: "Verifiable work and trustless settlement on GenLayer.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${playfairDisplay.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="en"
+      className={`${interTight.variable} ${jetbrainsMono.variable}`}
+    >
       <body>
         <Providers>
-          <div className="shell">
-            <header className="topbar">
-              <Link className="brand" href="/">HORKIOS</Link>
-              <nav className="nav" aria-label="Primary navigation">
-                <Link href="/how-it-works">How it works</Link>
-                <Link href="/dashboard">Dashboard</Link>
-                <Link href="/create">Create oath</Link>
-                <WalletButton />
-              </nav>
-            </header>
-            <main className="page">{children}</main>
-            <footer className="footer">
-              <span>HORKIOS © 2026</span>
-              <span>GENLAYER {networkName.toUpperCase()} · {contractAddress ? `${contractAddress.slice(0, 8)}…${contractAddress.slice(-6)}` : "CONTRACT NOT SET"}</span>
-              <span>TEST GEN HAS NO MONETARY VALUE</span>
-            </footer>
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <MobileHeader />
+            <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 pt-28 pb-40 sm:px-8 sm:pt-36 md:pt-44">
+              {children}
+            </main>
+            <Footer />
           </div>
         </Providers>
       </body>

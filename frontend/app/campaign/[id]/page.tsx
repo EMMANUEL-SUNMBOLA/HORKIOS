@@ -3,9 +3,11 @@
 import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { CampaignStatus, DemandStatus } from "@/components/status-badge";
-import { TxProgress } from "@/components/tx-progress";
-import { ConfirmModal } from "@/components/confirm-modal";
+import { CampaignStatus, DemandStatus } from "@/components/ui/status-badge";
+import { TxProgress } from "@/components/ui/tx-progress";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { GlassCard } from "@/components/ui/glass-card";
+import { SectionLabel } from "@/components/ui/section-label";
 import { useModal } from "@/components/modal";
 import { canonicalXUrl } from "@/lib/validation";
 import { formatDate, formatGen, truncateAddress } from "@/lib/format";
@@ -20,7 +22,7 @@ const confirmTitles: Record<string, string> = {
   expire_unaccepted_campaign: "Expire invitation",
   finalize_expired_demand: "Final expired check",
   request_termination: "Open termination case",
-  adjudicate_termination: "Request adjudication",
+  adjudicate_termination: "Request ruling",
 };
 
 const confirmLabels: Record<string, string> = {
@@ -125,8 +127,13 @@ export default function CampaignPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
   }, [modalActive, stage, hash, monitoringDelayed]);
 
-  if (campaignQuery.isLoading) return <div className="empty">Reading oath from GenLayer…</div>;
-  if (campaignQuery.error || !campaign) return <div className="empty error">This oath could not be loaded. Check the contract configuration and campaign ID.</div>;
+  if (campaignQuery.isLoading) return <div className="glass flex items-center justify-center rounded-2xl p-8 text-center text-fog">
+    <span className="horkios-pulse mr-2.5 inline-block h-1.5 w-1.5 rounded-full bg-green" />
+    Reading oath from GenLayer…
+  </div>;
+  if (campaignQuery.error || !campaign) return <div className="glass flex items-center justify-center rounded-2xl p-8 text-center text-red">
+    This oath could not be loaded. Check the contract configuration and campaign ID.
+  </div>;
   const isKol = address?.toLowerCase() === campaign.kol.toLowerCase();
   const isCreator = address?.toLowerCase() === campaign.creator.toLowerCase();
   const isParty = isKol || isCreator;
@@ -136,36 +143,321 @@ export default function CampaignPage() {
   const adjudicationReady = Number(campaign.status) === 3 && [1, 2].includes(Number(termination.status)) && nowSeconds > Number(termination.response_deadline);
 
   return <>
-    <div className="page-head"><div><div className="eyebrow">Oath #{id}</div><h1 className="page-title">{campaign.title}</h1><p className="muted">@{campaign.x_account} · {truncateAddress(campaign.creator)} ↔ {truncateAddress(campaign.kol)}</p></div><CampaignStatus status={Number(campaign.status)} /></div>
-    <div className="grid">
-      <section className="stack">
-        <div className="card"><p>{campaign.description || "No additional campaign description."}</p></div>
-        {campaign.demands.map((demand, index) => <article className="card demand" key={index}>
-          <div className="demand-head"><div><div className="eyebrow">Demand {index + 1}</div><h2>{formatGen(demand.allocation)}</h2></div><DemandStatus status={Number(demand.status)} /></div>
-          <p>{demand.instructions}</p>
-          <div className="metrics"><span className="metric">Views ≥ {String(demand.min_views)}</span><span className="metric">Likes ≥ {String(demand.min_likes)}</span><span className="metric">Reposts ≥ {String(demand.min_reposts)}</span><span className="metric">Due {formatDate(demand.active_deadline || demand.original_deadline)}</span></div>
-          {demand.evidence_url && <a className="mono" href={demand.evidence_url} target="_blank" rel="noreferrer">{demand.evidence_url} ↗</a>}
-          {demand.decision?.checked_at && Number(demand.decision.checked_at) > 0 && <div className="notice"><strong>{demand.decision.passed ? "Verification passed" : "Requirements not yet met"}</strong><p>{demand.decision.reason}</p><div className="metrics"><span className="metric">{String(demand.decision.observed_views)} views</span><span className="metric">{String(demand.decision.observed_likes)} likes</span><span className="metric">{String(demand.decision.observed_reposts)} reposts</span></div></div>}
-          {isKol && [1, 2].includes(Number(demand.status)) && <div className="field"><label htmlFor={`evidence-${index}`}>Canonical X post URL</label><input id={`evidence-${index}`} className="input" value={evidence[index] || ""} onChange={event => setEvidence(current => ({ ...current, [index]: event.target.value }))} /><button className="button secondary" onClick={() => { try { return transact("submit_evidence", [id, index, canonicalXUrl(evidence[index] || "")]); } catch (caught) { setError(caught instanceof Error ? caught.message : "Invalid URL"); } }}>Submit or replace proof</button></div>}
-          {isParty && Number(demand.status) === 2 && nowSeconds <= Number(demand.active_deadline) && <button className="button bronze" onClick={() => transact("verify_demand", [id, index])}>Ask GenLayer to verify</button>}
-          {isParty && [1, 2].includes(Number(demand.status)) && nowSeconds > Number(demand.active_deadline) && <button className="button danger" onClick={() => transact("finalize_expired_demand", [id, index])}>Run final expired check</button>}
-        </article>)}
+    <div className="mb-12 flex items-end justify-between gap-8 max-[900px]:flex-col max-[900px]:items-start">
+      <div>
+        <SectionLabel label={`Oath #${id}`} className="mb-6" />
+        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-bone sm:text-[42px]">
+          {campaign.title}
+        </h1>
+        <p className="mt-3 text-[14px] text-fog">
+          @{campaign.x_account} · {truncateAddress(campaign.creator)} ↔ {truncateAddress(campaign.kol)}
+        </p>
+      </div>
+      <CampaignStatus status={Number(campaign.status)} />
+    </div>
+
+    <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-6 items-start max-[900px]:grid-cols-1">
+      <section className="grid gap-4">
+        {/* Description */}
+        <GlassCard className="p-6">
+          <p className="text-[14px] leading-[1.5] text-fog">
+            {campaign.description || "No additional campaign description."}
+          </p>
+        </GlassCard>
+
+        {/* Demands */}
+        {campaign.demands.map((demand, index) => (
+          <GlassCard key={index} className="p-6">
+            <div className="flex items-center justify-between gap-3.5 mb-4">
+              <div>
+                <SectionLabel label={`Demand ${index + 1}`} className="mb-2" />
+                <h2 className="font-display text-[22px] font-semibold text-bone">
+                  {formatGen(demand.allocation)}
+                </h2>
+              </div>
+              <DemandStatus status={Number(demand.status)} />
+            </div>
+
+            <p className="mb-4 text-[14px] leading-[1.5] text-fog">{demand.instructions}</p>
+
+            {/* Requirements */}
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+                Views ≥ {String(demand.min_views)}
+              </span>
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+                Likes ≥ {String(demand.min_likes)}
+              </span>
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+                Reposts ≥ {String(demand.min_reposts)}
+              </span>
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+                Due {formatDate(demand.active_deadline || demand.original_deadline)}
+              </span>
+            </div>
+
+            {/* Evidence URL */}
+            {demand.evidence_url && (
+              <a className="mb-4 block font-mono text-[13px] text-copper hover:underline" href={demand.evidence_url} target="_blank" rel="noreferrer">
+                {demand.evidence_url} ↗
+              </a>
+            )}
+
+            {/* Verification decision */}
+            {demand.decision?.checked_at && Number(demand.decision.checked_at) > 0 && (
+              <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-4 mb-4">
+                <strong className="block text-[14px] text-bone">
+                  {demand.decision.passed ? "Verification passed" : "Requirements not yet met"}
+                </strong>
+                <p className="mt-1 text-[13px] text-fog">{demand.decision.reason}</p>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-fog">
+                    {String(demand.decision.observed_views)} views
+                  </span>
+                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-fog">
+                    {String(demand.decision.observed_likes)} likes
+                  </span>
+                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-fog">
+                    {String(demand.decision.observed_reposts)} reposts
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Evidence submission (KOL) */}
+            {isKol && [1, 2].includes(Number(demand.status)) && (
+              <div className="grid gap-2">
+                <label className="section-label text-[10px]" htmlFor={`evidence-${index}`}>
+                  <span className="section-label-slash">/</span>
+                  <span className="ml-1">Canonical X post URL</span>
+                </label>
+                <input
+                  className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]"
+                  id={`evidence-${index}`}
+                  value={evidence[index] || ""}
+                  onChange={event => setEvidence(current => ({ ...current, [index]: event.target.value }))}
+                />
+                <button
+                  className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]"
+                  onClick={() => {
+                    try {
+                      return transact("submit_evidence", [id, index, canonicalXUrl(evidence[index] || "")]);
+                    } catch (caught) {
+                      setError(caught instanceof Error ? caught.message : "Invalid URL");
+                    }
+                  }}
+                >
+                  Submit or replace proof
+                </button>
+              </div>
+            )}
+
+            {/* Verify button (Party) */}
+            {isParty && Number(demand.status) === 2 && nowSeconds <= Number(demand.active_deadline) && (
+              <button
+                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2 text-[13px] font-medium text-black transition-all duration-200 hover:bg-bone"
+                onClick={() => transact("verify_demand", [id, index])}
+              >
+                Ask GenLayer to verify
+              </button>
+            )}
+
+            {/* Final expired check (Party) */}
+            {isParty && [1, 2].includes(Number(demand.status)) && nowSeconds > Number(demand.active_deadline) && (
+              <button
+                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+                onClick={() => transact("finalize_expired_demand", [id, index])}
+              >
+                Run final expired check
+              </button>
+            )}
+          </GlassCard>
+        ))}
       </section>
-      <aside className="stack sticky">
-        <div className="card stack"><h2>Escrow</h2>
-          <div className="summary-row"><span>Original</span><strong>{formatGen(campaign.original_escrow)}</strong></div>
-          <div className="summary-row"><span>Locked</span><strong>{formatGen(campaign.locked_amount)}</strong></div>
-          <div className="summary-row"><span>Gross paid</span><span>{formatGen(campaign.gross_paid)}</span></div>
-          <div className="summary-row"><span>KOL received</span><span>{formatGen(campaign.net_paid)}</span></div>
-          <div className="summary-row"><span>Platform fee</span><span>{formatGen(campaign.fees_paid)}</span></div>
-          <div className="summary-row"><span>Refunded</span><span>{formatGen(campaign.refunded)}</span></div>
-        </div>
-        {isCreator && Number(campaign.status) === 1 && <div className="card stack"><h2>Deadline proposal</h2><button className="button bronze" onClick={() => transact("approve_counteroffer", [id])}>Approve all proposed dates</button><button className="button danger" onClick={() => transact("cancel_unaccepted_campaign", [id])}>Cancel and refund</button></div>}
-        {isCreator && Number(campaign.status) === 0 && <button className="button danger" onClick={() => transact("cancel_unaccepted_campaign", [id])}>Cancel and refund</button>}
-        {[0, 1].includes(Number(campaign.status)) && nowSeconds > Number(campaign.acceptance_deadline) && <button className="button danger" onClick={() => transact("expire_unaccepted_campaign", [id])}>Expire invitation and refund</button>}
-        {isParty && Number(campaign.status) === 2 && <div className="card stack"><h2>Request termination</h2><p className="muted">Past payouts remain final. Your statement and public evidence are permanent.</p><select className="select" value={terminationCategory} onChange={event => setTerminationCategory(event.target.value)}><option value="external_hardship">External hardship</option><option value="kol_breach">KOL breach or abandonment</option><option value="other">Other</option></select><textarea className="textarea" maxLength={2000} placeholder="Public statement" value={terminationStatement} onChange={event => setTerminationStatement(event.target.value)} /><textarea className="textarea" placeholder="Public HTTPS evidence URLs, one per line (max 5)" value={terminationUrls} onChange={event => setTerminationUrls(event.target.value)} /><button className="button danger" disabled={!terminationStatement.trim()} onClick={() => transact("request_termination", [id, terminationCategory, terminationStatement.trim(), parseUrls(terminationUrls)])}>Open 48-hour termination case</button></div>}
-        {Number(campaign.status) === 3 && <div className="card stack"><h2>Termination case</h2><div className="summary-row"><span>Category</span><strong>{termination.category.replaceAll("_", " ")}</strong></div><p>{termination.statement}</p><p className="muted">Response deadline: {formatDate(termination.response_deadline)}</p>{termination.respondent_statement && <div className="notice"><strong>Response</strong><p>{termination.respondent_statement}</p></div>}{termination.reason && <div className="notice"><strong>Ruling {String(termination.ruling)}</strong><p>{termination.reason}</p></div>}{isParty && !isRequester && responseOpen && <><textarea className="textarea" maxLength={2000} placeholder="Public response (may be empty if evidence is supplied)" value={responseStatement} onChange={event => setResponseStatement(event.target.value)} /><textarea className="textarea" placeholder="Public HTTPS evidence URLs, one per line (max 5)" value={responseUrls} onChange={event => setResponseUrls(event.target.value)} /><button className="button bronze" onClick={() => transact("respond_to_termination", [id, responseStatement.trim(), parseUrls(responseUrls)])}>Submit one-time response</button></>}{isParty && adjudicationReady && <button className="button danger" onClick={() => transact("adjudicate_termination", [id])}>Ask GenLayer to adjudicate</button>}</div>}
-        {error && <p className="error">{error}</p>}
+
+      {/* Sidebar */}
+      <aside className="grid gap-4 max-[900px]:static sticky top-[88px]">
+        {/* Escrow */}
+        <GlassCard className="p-6">
+          <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Escrow</h2>
+          <div className="grid gap-2">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Original</span>
+              <strong className="font-mono font-medium text-bone">{formatGen(campaign.original_escrow)}</strong>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Locked</span>
+              <strong className="font-mono font-medium text-bone">{formatGen(campaign.locked_amount)}</strong>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Gross paid</span>
+              <span className="font-mono text-ash">{formatGen(campaign.gross_paid)}</span>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>KOL received</span>
+              <span className="font-mono text-ash">{formatGen(campaign.net_paid)}</span>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Platform fee</span>
+              <span className="font-mono text-ash">{formatGen(campaign.fees_paid)}</span>
+            </div>
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <span>Refunded</span>
+              <span className="font-mono text-ash">{formatGen(campaign.refunded)}</span>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Counteroffer (Creator) */}
+        {isCreator && Number(campaign.status) === 1 && (
+          <GlassCard className="p-6">
+            <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Deadline proposal</h2>
+            <button
+              className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-black transition-all duration-200 hover:bg-bone"
+              onClick={() => transact("approve_counteroffer", [id])}
+            >
+              Approve all proposed dates
+            </button>
+            <button
+              className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+              onClick={() => transact("cancel_unaccepted_campaign", [id])}
+            >
+              Cancel and refund
+            </button>
+          </GlassCard>
+        )}
+
+        {/* Cancel (Creator, OFFERED) */}
+        {isCreator && Number(campaign.status) === 0 && (
+          <button
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+            onClick={() => transact("cancel_unaccepted_campaign", [id])}
+          >
+            Cancel and refund
+          </button>
+        )}
+
+        {/* Expire (after deadline) */}
+        {[0, 1].includes(Number(campaign.status)) && nowSeconds > Number(campaign.acceptance_deadline) && (
+          <button
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+            onClick={() => transact("expire_unaccepted_campaign", [id])}
+          >
+            Expire invitation and refund
+          </button>
+        )}
+
+        {/* Termination request (Party, ACTIVE) */}
+        {isParty && Number(campaign.status) === 2 && (
+          <GlassCard className="p-6">
+            <h2 className="mb-2 font-display text-[18px] font-semibold text-bone">Request termination</h2>
+            <p className="mb-4 text-[13px] text-fog">
+              Past payouts remain final. Your statement and public evidence are permanent.
+            </p>
+            <div className="grid gap-3">
+              <select
+                className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]"
+                value={terminationCategory}
+                onChange={event => setTerminationCategory(event.target.value)}
+              >
+                <option value="external_hardship">External hardship</option>
+                <option value="kol_breach">KOL breach or abandonment</option>
+                <option value="other">Other</option>
+              </select>
+              <textarea
+                className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                maxLength={2000}
+                placeholder="Public statement"
+                value={terminationStatement}
+                onChange={event => setTerminationStatement(event.target.value)}
+              />
+              <textarea
+                className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                placeholder="Public HTTPS evidence URLs, one per line (max 5)"
+                value={terminationUrls}
+                onChange={event => setTerminationUrls(event.target.value)}
+              />
+              <button
+                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+                disabled={!terminationStatement.trim()}
+                onClick={() => transact("request_termination", [id, terminationCategory, terminationStatement.trim(), parseUrls(terminationUrls)])}
+              >
+                Open 48-hour termination case
+              </button>
+            </div>
+          </GlassCard>
+        )}
+
+        {/* Termination case (TERMINATION_PENDING) */}
+        {Number(campaign.status) === 3 && (
+          <GlassCard className="p-6">
+            <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Termination case</h2>
+            <div className="grid gap-2 mb-4">
+              <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+                <span>Category</span>
+                <strong className="font-mono font-medium text-bone">{termination.category.replaceAll("_", " ")}</strong>
+              </div>
+            </div>
+            <p className="mb-2 text-[14px] leading-[1.5] text-fog">{termination.statement}</p>
+            <p className="mb-4 text-[13px] text-ash">Response deadline: {formatDate(termination.response_deadline)}</p>
+
+            {/* Respondent statement */}
+            {termination.respondent_statement && (
+              <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-4 mb-4">
+                <strong className="block text-[14px] text-bone">Response</strong>
+                <p className="mt-1 text-[13px] text-fog">{termination.respondent_statement}</p>
+              </div>
+            )}
+
+            {/* Ruling */}
+            {termination.reason && (
+              <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-4 mb-4">
+                <strong className="block text-[14px] text-bone">Ruling {String(termination.ruling)}</strong>
+                <p className="mt-1 text-[13px] text-fog">{termination.reason}</p>
+              </div>
+            )}
+
+            {/* Response form (non-requester, response open) */}
+            {isParty && !isRequester && responseOpen && (
+              <div className="grid gap-3">
+                <textarea
+                  className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                  maxLength={2000}
+                  placeholder="Public response (may be empty if evidence is supplied)"
+                  value={responseStatement}
+                  onChange={event => setResponseStatement(event.target.value)}
+                />
+                <textarea
+                  className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                  placeholder="Public HTTPS evidence URLs, one per line (max 5)"
+                  value={responseUrls}
+                  onChange={event => setResponseUrls(event.target.value)}
+                />
+                <button
+                  className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-black transition-all duration-200 hover:bg-bone"
+                  onClick={() => transact("respond_to_termination", [id, responseStatement.trim(), parseUrls(responseUrls)])}
+                >
+                  Submit one-time response
+                </button>
+              </div>
+            )}
+
+            {/* Adjudicate button */}
+            {isParty && adjudicationReady && (
+              <button
+                className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+                onClick={() => transact("adjudicate_termination", [id])}
+              >
+                Ask GenLayer to adjudicate
+              </button>
+            )}
+          </GlassCard>
+        )}
+
+        {/* Error */}
+        {error && <p className="text-[13px] text-red">{error}</p>}
+
+        {/* TxProgress */}
         {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />}
       </aside>
     </div>

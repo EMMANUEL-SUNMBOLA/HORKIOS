@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 
 type ModalContextValue = {
@@ -12,7 +18,9 @@ type ModalContextValue = {
 const ModalContext = createContext<ModalContextValue | null>(null);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
-  const [renderFn, setRenderFn] = useState<(() => React.ReactNode) | null>(null);
+  const [renderFn, setRenderFn] = useState<(() => React.ReactNode) | null>(
+    null,
+  );
   const [visible, setVisible] = useState(false);
 
   const showModal = useCallback((render: () => React.ReactNode) => {
@@ -39,10 +47,12 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   return (
     <ModalContext.Provider value={value}>
       {children}
-      {visible && renderFn && createPortal(
-        <ModalShell onClose={hideModal}>{renderFn()}</ModalShell>,
-        document.body,
-      )}
+      {visible &&
+        renderFn &&
+        createPortal(
+          <ModalShell onClose={hideModal}>{renderFn()}</ModalShell>,
+          document.body,
+        )}
     </ModalContext.Provider>
   );
 }
@@ -53,11 +63,31 @@ export function useModal() {
   return value;
 }
 
-function ModalShell({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function ModalShell({
+  children,
+  onClose,
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
+    <div
+      className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="glass relative mx-4 w-full max-w-[480px] p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-fog transition-colors hover:bg-white/[0.06] hover:text-bone"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          ✕
+        </button>
         {children}
       </div>
     </div>
