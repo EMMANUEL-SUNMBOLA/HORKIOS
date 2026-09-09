@@ -82,7 +82,7 @@ function ModalShell({
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-fog transition-colors hover:bg-white/[0.06] hover:text-bone"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
           onClick={onClose}
           aria-label="Close"
         >

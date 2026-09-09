@@ -78,7 +78,7 @@ export function WalletButton() {
   if (!address)
     return (
       <button
-        className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-bone transition-colors duration-200 hover:bg-white/[0.06]"
+        className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06]"
         onClick={handleConnect}
         disabled={connecting}
         title={error}
@@ -99,7 +99,7 @@ export function WalletButton() {
           {switching ? "Switching…" : `Switch to ${networkLabel}`}
         </button>
         {switchError && (
-          <div className="absolute right-0 top-full mt-2 rounded-lg border border-red/20 bg-black/90 px-3 py-2 text-[12px] text-red backdrop-blur-xl">
+          <div className="absolute right-0 top-full mt-2 rounded-lg border border-destructive/20 bg-black/90 px-3 py-2 text-[12px] text-destructive backdrop-blur-xl">
             {switchError}
           </div>
         )}
@@ -109,7 +109,7 @@ export function WalletButton() {
   return (
     <div className="relative" ref={menuRef}>
       <button
-        className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-bone transition-colors duration-200 hover:bg-white/[0.06]"
+        className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06]"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -117,7 +117,7 @@ export function WalletButton() {
         <span className="h-2 w-2 rounded-full bg-green horkios-pulse" />
         {truncateAddress(address)}
         <svg
-          className={`h-3 w-3 text-fog transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           viewBox="0 0 12 12"
           fill="none"
         >
@@ -126,28 +126,28 @@ export function WalletButton() {
       </button>
       {open && (
         <div className="glass absolute right-0 top-full mt-2 min-w-[200px] p-2" role="menu">
-          <div className="border-b border-glass-border-subtle px-3 py-2">
+          <div className="border-b border-border/50 px-3 py-2">
             <span className="section-label text-[10px]">
               <span className="section-label-slash">/</span>
               <span className="ml-1">Connected Wallet</span>
             </span>
-            <div className="mt-1 font-mono text-[13px] text-bone">{truncateAddress(address)}</div>
+            <div className="mt-1 font-mono text-[13px] text-foreground">{truncateAddress(address)}</div>
           </div>
           <button
             role="menuitem"
-            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-fog transition-colors hover:bg-white/[0.04] hover:text-bone"
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground"
             onClick={copyAddress}
           >
             <span>{copied ? "Address copied" : "Copy address"}</span>
-            <span className="text-ash">{copied ? "✓" : "⎘"}</span>
+            <span className="text-muted-foreground">{copied ? "✓" : "⎘"}</span>
           </button>
           <button
             role="menuitem"
-            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-fog transition-colors hover:bg-white/[0.04] hover:text-bone"
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground"
             onClick={handleDisconnect}
           >
             <span>Disconnect</span>
-            <span className="text-ash">↗</span>
+            <span className="text-muted-foreground">↗</span>
           </button>
         </div>
       )}

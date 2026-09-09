@@ -61,16 +61,16 @@ export default function DashboardPage() {
       <div className="mb-14 flex items-end justify-between gap-8 max-[900px]:flex-col max-[900px]:items-start">
         <div>
           <SectionLabel label="Workspace / Oaths" className="mb-6" />
-          <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-bone sm:text-[42px]">
+          <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-foreground sm:text-[42px]">
             Your dashboard
           </h1>
-          <p className="mt-3.5 max-w-[600px] text-[15px] text-fog">
+          <p className="mt-3.5 max-w-[600px] text-[15px] text-muted-foreground">
             Track every promise, proof, and settlement from one public
             workspace.
           </p>
         </div>
         <Link
-          className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-bone"
+          className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
           href="/create"
         >
           Create new oath <span>↗</span>
@@ -87,12 +87,12 @@ export default function DashboardPage() {
             <span className="section-label-slash">/</span>
             <span className="ml-1">Connected Account</span>
           </span>
-          <strong className="mt-6 font-display text-[22px] font-semibold text-bone">
+          <strong className="mt-6 font-display text-[22px] font-semibold text-foreground">
             {address ? truncateAddress(address) : "NOT CONNECTED"}
           </strong>
-          <span className="mt-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-fog">
+          <span className="mt-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             <span
-              className={`h-1.5 w-1.5 rounded-full ${address ? "bg-green horkios-pulse" : "bg-slate"}`}
+              className={`h-1.5 w-1.5 rounded-full ${address ? "bg-green horkios-pulse" : "bg-muted"}`}
             />
             {address
               ? `${networkName.toUpperCase()} · ONLINE`
@@ -123,10 +123,10 @@ export default function DashboardPage() {
               <span className="section-label-slash">/</span>
               <span className="ml-1">{label}</span>
             </span>
-            <strong className="mt-4 font-display text-[40px] font-semibold leading-none tracking-[-0.03em] text-bone max-[600px]:text-[32px]">
+            <strong className="mt-4 font-display text-[40px] font-semibold leading-none tracking-[-0.03em] text-foreground max-[600px]:text-[32px]">
               {value}
             </strong>
-            <small className="mt-auto font-mono text-[10px] uppercase tracking-[0.14em] text-ash">
+            <small className="mt-auto font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
               {sub}
             </small>
           </GlassCard>
@@ -134,13 +134,13 @@ export default function DashboardPage() {
       </section>
 
       {/* Records head */}
-      <div className="border-b border-glass-border-subtle pb-4">
+      <div className="border-b border-border/50 pb-4">
         <SectionLabel label="Oath Records" className="mb-4" />
         <div className="flex items-end justify-between">
-          <h2 className="font-display text-[22px] font-semibold tracking-[-0.02em] text-bone">
+          <h2 className="font-display text-[22px] font-semibold tracking-[-0.02em] text-foreground">
             Recent activity
           </h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ash max-[600px]:hidden">
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground max-[600px]:hidden">
             {loaded.length} RECORD{loaded.length === 1 ? "" : "S"}
           </span>
         </div>
@@ -150,12 +150,12 @@ export default function DashboardPage() {
       {!address ? (
         <NoOath variant="disconnected" onConnect={connect} />
       ) : idsQuery.isLoading ? (
-        <div className="glass flex items-center gap-2.5 rounded-xl px-6 py-16 text-fog">
+        <div className="glass flex items-center gap-2.5 rounded-xl px-6 py-16 text-muted-foreground">
           <span className="horkios-pulse mr-2.5 inline-block h-1.5 w-1.5 rounded-full bg-green" />
           Reading campaign indexes from GenLayer...
         </div>
       ) : idsQuery.error ? (
-        <div className="glass rounded-xl px-6 py-16 text-center text-red">
+        <div className="glass rounded-xl px-6 py-16 text-center text-destructive">
           Campaign records could not be loaded. Check the contract and network
           configuration.
         </div>

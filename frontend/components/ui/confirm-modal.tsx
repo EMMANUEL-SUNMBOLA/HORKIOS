@@ -28,13 +28,13 @@ export function ConfirmModal({
 
   return (
     <>
-      <h2 className="mt-0 pr-8 font-display text-[22px] font-semibold tracking-[-0.02em] text-bone">
+      <h2 className="mt-0 pr-8 font-display text-[22px] font-semibold tracking-[-0.02em] text-foreground">
         {title}
       </h2>
-      <p className="mt-3 text-[14px] leading-[1.6] text-fog">{message}</p>
+      <p className="mt-3 text-[14px] leading-[1.6] text-muted-foreground">{message}</p>
       <div className="mt-6 flex justify-end gap-3">
         <button
-          className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]"
+          className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
           onClick={hideModal}
         >
           {cancelLabel}
@@ -42,8 +42,8 @@ export function ConfirmModal({
         <button
           className={`inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium transition-all duration-200 ${
             variant === "danger"
-              ? "border border-red/30 bg-red/10 text-red hover:bg-red/20"
-              : "bg-white text-black hover:bg-bone"
+              ? "border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+              : "bg-white text-black hover:bg-foreground"
           }`}
           onClick={handleConfirm}
         >

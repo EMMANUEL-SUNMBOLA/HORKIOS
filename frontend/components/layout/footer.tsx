@@ -7,15 +7,15 @@ export function Footer() {
     : "CONTRACT NOT SET";
 
   return (
-    <footer className="border-t border-glass-border-subtle px-5 py-8 sm:px-8">
+    <footer className="border-t border-border/50 px-5 py-8 sm:px-8">
       <div className="mx-auto flex max-w-[1180px] flex-col items-center justify-between gap-6 sm:flex-row">
-        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ash">
+        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           HORKIOS &copy; 2026
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ash">
+        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           GENLAYER {network} · {addressDisplay}
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ash">
+        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           TEST GEN HAS NO MONETARY VALUE
         </span>
       </div>

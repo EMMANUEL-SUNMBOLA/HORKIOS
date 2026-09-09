@@ -18,7 +18,7 @@ const guideArray = [
 
 export function AgentGuide() {
   return (
-    <div className="overflow-hidden rounded-[var(--radius-md)] border border-graphite">
+    <div className="overflow-hidden rounded-[var(--radius-md)] border border-border">
       {guideArray.map((step, index) => {
         // Formats index (0, 1, 2) into zero-padded strings ("01", "02", "03")
         const stepNumber = String(index + 1).padStart(2, "0");
@@ -26,23 +26,23 @@ export function AgentGuide() {
         return (
           <div
             key={step.title}
-            className="flex flex-col gap-2.5 border-b border-graphite bg-onyx p-5 transition-colors duration-200 ease-default last:border-b-0 hover:bg-carbon"
+            className="flex flex-col gap-2.5 border-b border-border bg-background p-5 transition-colors duration-200 ease-default last:border-b-0 hover:bg-secondary"
           >
             {/* Header row: Number and Title inline */}
             <div className="flex items-center gap-3">
-              <span className="flex h-5 w-7 items-center justify-center rounded-[var(--radius-sm)] border border-graphite bg-obsidian font-mono text-[11px] font-medium text-lavender">
+              <span className="flex h-5 w-7 items-center justify-center rounded-[var(--radius-sm)] border border-border bg-background font-mono text-[11px] font-medium text-lavender">
                 {stepNumber}
               </span>
-              <strong className="text-sm font-medium text-paper">
+              <strong className="text-sm font-medium text-foreground">
                 {step.title}
               </strong>
             </div>
 
             {/* Description and Code stacked naturally */}
-            <p className="m-0 text-[13px] text-fog">{step.desc}</p>
+            <p className="m-0 text-[13px] text-muted-foreground">{step.desc}</p>
 
             <div>
-              <code className="inline-block w-fit rounded-[var(--radius-sm)] border border-graphite bg-obsidian px-2 py-1 font-mono text-[11px] tracking-[0.02em] text-lavender">
+              <code className="inline-block w-fit rounded-[var(--radius-sm)] border border-border bg-background px-2 py-1 font-mono text-[11px] tracking-[0.02em] text-lavender">
                 {step.code}
               </code>
             </div>

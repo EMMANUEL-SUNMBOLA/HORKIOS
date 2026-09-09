@@ -8,7 +8,7 @@ type AudienceToggleProps = {
 export function AudienceToggle({ audience, onChange }: AudienceToggleProps) {
   return (
     <div
-      className="mb-8 inline-flex rounded-full border border-graphite bg-onyx p-[3px]"
+      className="mb-8 inline-flex rounded-full border border-border bg-background p-[3px]"
       role="tablist"
       aria-label="Audience"
     >
@@ -17,8 +17,8 @@ export function AudienceToggle({ audience, onChange }: AudienceToggleProps) {
         aria-selected={audience === "human"}
         className={`rounded-full px-5 py-2 text-[13px] font-medium tracking-[0.01em] transition-colors duration-200 ease-default ${
           audience === "human"
-            ? "bg-copper text-obsidian"
-            : "bg-transparent text-fog hover:text-bone"
+            ? "bg-primary text-background"
+            : "bg-transparent text-muted-foreground hover:text-foreground"
         }`}
         onClick={() => onChange("human")}
       >
@@ -29,8 +29,8 @@ export function AudienceToggle({ audience, onChange }: AudienceToggleProps) {
         aria-selected={audience === "agent"}
         className={`rounded-full px-5 py-2 text-[13px] font-medium tracking-[0.01em] transition-colors duration-200 ease-default ${
           audience === "agent"
-            ? "bg-lavender text-obsidian"
-            : "bg-transparent text-fog hover:text-bone"
+            ? "bg-lavender text-background"
+            : "bg-transparent text-muted-foreground hover:text-foreground"
         }`}
         onClick={() => onChange("agent")}
       >

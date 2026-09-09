@@ -85,7 +85,7 @@ export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
       {/* Content */}
       <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1180px] flex-col items-center justify-center px-5 text-center sm:px-8">
         {/* Headline */}
-        <h1 className="mb-6 max-w-[800px] font-display text-[48px] font-semibold leading-[1.05] tracking-[-0.03em] text-bone sm:text-[68px] lg:text-[88px]">
+        <h1 className="mb-6 max-w-[800px] font-display text-[48px] font-semibold leading-[1.05] tracking-[-0.03em] text-foreground sm:text-[68px] lg:text-[88px]">
           {audience === "human" ? (
             <>
               Make the promise.
@@ -98,7 +98,7 @@ export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
         </h1>
 
         {/* Sub-headline */}
-        <p className="mb-8 max-w-[520px] text-[16px] leading-[1.5] text-fog">
+        <p className="mb-8 max-w-[520px] text-[16px] leading-[1.5] text-muted-foreground">
           {audience === "human" ? (
             <>
               HORKIOS turns campaign commitments into verifiable oaths funded
@@ -135,7 +135,7 @@ export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
                 Create an oath <span>↗</span>
               </Link>
               <Link
-                className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[14px] font-medium text-bone transition-colors duration-200 hover:bg-white/[0.06]"
+                className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[14px] font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06]"
                 href="/dashboard"
               >
                 Open dashboard
@@ -150,7 +150,7 @@ export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
                 Read the docs <span>↗</span>
               </Link>
               <Link
-                className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[14px] font-medium text-bone transition-colors duration-200 hover:bg-white/[0.06]"
+                className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[14px] font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06]"
                 href="/create"
               >
                 Try the UI first

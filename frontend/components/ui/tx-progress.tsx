@@ -43,8 +43,8 @@ export function TxProgress({
               pos < index || stage === "finalized"
                 ? "text-green"
                 : pos === index
-                  ? "text-bone"
-                  : "text-fog"
+                  ? "text-foreground"
+                  : "text-muted-foreground"
             }`}
             key={value}
           >
@@ -61,14 +61,14 @@ export function TxProgress({
       </div>
 
       {stage === "undetermined" && (
-        <p className="mt-4 text-[13px] text-red">
+        <p className="mt-4 text-[13px] text-destructive">
           Validators could not agree. No contract state or funds changed; retry
           when the evidence source is stable.
         </p>
       )}
 
       {monitoringDelayed && (
-        <div className="mt-4 glass-inner rounded-xl border-l-[3px] border-l-copper p-3 text-[13px] leading-[1.5] text-fog">
+        <div className="mt-4 glass-inner rounded-xl border-l-[3px] border-l-primary p-3 text-[13px] leading-[1.5] text-muted-foreground">
           RPC capacity is limited. Monitoring has slowed; your submitted
           transaction is still being tracked.
         </div>
@@ -76,13 +76,13 @@ export function TxProgress({
 
       {stage === "status_unavailable" && (
         <>
-          <div className="mt-4 glass-inner rounded-xl border-l-[3px] border-l-copper p-3 text-[13px] leading-[1.5] text-fog">
+          <div className="mt-4 glass-inner rounded-xl border-l-[3px] border-l-primary p-3 text-[13px] leading-[1.5] text-muted-foreground">
             Status is temporarily unavailable. Do not submit again—the
             transaction may already have succeeded.
           </div>
           {onResume && (
             <button
-              className="mt-3 glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]"
+              className="mt-3 glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
               onClick={onResume}
             >
               Resume monitoring
@@ -92,18 +92,18 @@ export function TxProgress({
       )}
 
       {stage === "error" && (
-        <p className="mt-4 text-[13px] text-red">The transaction did not complete.</p>
+        <p className="mt-4 text-[13px] text-destructive">The transaction did not complete.</p>
       )}
 
       {hash && (
-        <div className="mt-4 overflow-wrap-anywhere font-mono text-[12px] text-ash">
+        <div className="mt-4 overflow-wrap-anywhere font-mono text-[12px] text-muted-foreground">
           {hash}
         </div>
       )}
 
       {showDismiss && (
         <button
-          className="mt-4 glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]"
+          className="mt-4 glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
           onClick={onDismiss}
         >
           Close

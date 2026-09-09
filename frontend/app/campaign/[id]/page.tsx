@@ -127,11 +127,11 @@ export default function CampaignPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
   }, [modalActive, stage, hash, monitoringDelayed]);
 
-  if (campaignQuery.isLoading) return <div className="glass flex items-center justify-center rounded-2xl p-8 text-center text-fog">
+  if (campaignQuery.isLoading) return <div className="glass flex items-center justify-center rounded-2xl p-8 text-center text-muted-foreground">
     <span className="horkios-pulse mr-2.5 inline-block h-1.5 w-1.5 rounded-full bg-green" />
     Reading oath from GenLayer…
   </div>;
-  if (campaignQuery.error || !campaign) return <div className="glass flex items-center justify-center rounded-2xl p-8 text-center text-red">
+  if (campaignQuery.error || !campaign) return <div className="glass flex items-center justify-center rounded-2xl p-8 text-center text-destructive">
     This oath could not be loaded. Check the contract configuration and campaign ID.
   </div>;
   const isKol = address?.toLowerCase() === campaign.kol.toLowerCase();
@@ -146,10 +146,10 @@ export default function CampaignPage() {
     <div className="mb-12 flex items-end justify-between gap-8 max-[900px]:flex-col max-[900px]:items-start">
       <div>
         <SectionLabel label={`Oath #${id}`} className="mb-6" />
-        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-bone sm:text-[42px]">
+        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-foreground sm:text-[42px]">
           {campaign.title}
         </h1>
-        <p className="mt-3 text-[14px] text-fog">
+        <p className="mt-3 text-[14px] text-muted-foreground">
           @{campaign.x_account} · {truncateAddress(campaign.creator)} ↔ {truncateAddress(campaign.kol)}
         </p>
       </div>
@@ -160,7 +160,7 @@ export default function CampaignPage() {
       <section className="grid gap-4">
         {/* Description */}
         <GlassCard className="p-6">
-          <p className="text-[14px] leading-[1.5] text-fog">
+          <p className="text-[14px] leading-[1.5] text-muted-foreground">
             {campaign.description || "No additional campaign description."}
           </p>
         </GlassCard>
@@ -171,53 +171,53 @@ export default function CampaignPage() {
             <div className="flex items-center justify-between gap-3.5 mb-4">
               <div>
                 <SectionLabel label={`Demand ${index + 1}`} className="mb-2" />
-                <h2 className="font-display text-[22px] font-semibold text-bone">
+                <h2 className="font-display text-[22px] font-semibold text-foreground">
                   {formatGen(demand.allocation)}
                 </h2>
               </div>
               <DemandStatus status={Number(demand.status)} />
             </div>
 
-            <p className="mb-4 text-[14px] leading-[1.5] text-fog">{demand.instructions}</p>
+            <p className="mb-4 text-[14px] leading-[1.5] text-muted-foreground">{demand.instructions}</p>
 
             {/* Requirements */}
             <div className="flex flex-wrap gap-1.5 mb-4">
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Views ≥ {String(demand.min_views)}
               </span>
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Likes ≥ {String(demand.min_likes)}
               </span>
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Reposts ≥ {String(demand.min_reposts)}
               </span>
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Due {formatDate(demand.active_deadline || demand.original_deadline)}
               </span>
             </div>
 
             {/* Evidence URL */}
             {demand.evidence_url && (
-              <a className="mb-4 block font-mono text-[13px] text-copper hover:underline" href={demand.evidence_url} target="_blank" rel="noreferrer">
+              <a className="mb-4 block font-mono text-[13px] text-primary hover:underline" href={demand.evidence_url} target="_blank" rel="noreferrer">
                 {demand.evidence_url} ↗
               </a>
             )}
 
             {/* Verification decision */}
             {demand.decision?.checked_at && Number(demand.decision.checked_at) > 0 && (
-              <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-4 mb-4">
-                <strong className="block text-[14px] text-bone">
+              <div className="glass-inner rounded-xl border-l-[3px] border-l-primary p-4 mb-4">
+                <strong className="block text-[14px] text-foreground">
                   {demand.decision.passed ? "Verification passed" : "Requirements not yet met"}
                 </strong>
-                <p className="mt-1 text-[13px] text-fog">{demand.decision.reason}</p>
+                <p className="mt-1 text-[13px] text-muted-foreground">{demand.decision.reason}</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-fog">
+                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-muted-foreground">
                     {String(demand.decision.observed_views)} views
                   </span>
-                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-fog">
+                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-muted-foreground">
                     {String(demand.decision.observed_likes)} likes
                   </span>
-                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-fog">
+                  <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] text-muted-foreground">
                     {String(demand.decision.observed_reposts)} reposts
                   </span>
                 </div>
@@ -232,13 +232,13 @@ export default function CampaignPage() {
                   <span className="ml-1">Canonical X post URL</span>
                 </label>
                 <input
-                  className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]"
+                  className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]"
                   id={`evidence-${index}`}
                   value={evidence[index] || ""}
                   onChange={event => setEvidence(current => ({ ...current, [index]: event.target.value }))}
                 />
                 <button
-                  className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]"
+                  className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
                   onClick={() => {
                     try {
                       return transact("submit_evidence", [id, index, canonicalXUrl(evidence[index] || "")]);
@@ -255,7 +255,7 @@ export default function CampaignPage() {
             {/* Verify button (Party) */}
             {isParty && Number(demand.status) === 2 && nowSeconds <= Number(demand.active_deadline) && (
               <button
-                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2 text-[13px] font-medium text-black transition-all duration-200 hover:bg-bone"
+                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2 text-[13px] font-medium text-black transition-all duration-200 hover:bg-foreground"
                 onClick={() => transact("verify_demand", [id, index])}
               >
                 Ask GenLayer to verify
@@ -265,7 +265,7 @@ export default function CampaignPage() {
             {/* Final expired check (Party) */}
             {isParty && [1, 2].includes(Number(demand.status)) && nowSeconds > Number(demand.active_deadline) && (
               <button
-                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2 text-[13px] font-medium text-destructive transition-all duration-200 hover:bg-destructive/20"
                 onClick={() => transact("finalize_expired_demand", [id, index])}
               >
                 Run final expired check
@@ -279,31 +279,31 @@ export default function CampaignPage() {
       <aside className="grid gap-4 max-[900px]:static sticky top-[88px]">
         {/* Escrow */}
         <GlassCard className="p-6">
-          <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Escrow</h2>
+          <h2 className="mb-4 font-display text-[18px] font-semibold text-foreground">Escrow</h2>
           <div className="grid gap-2">
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Original</span>
-              <strong className="font-mono font-medium text-bone">{formatGen(campaign.original_escrow)}</strong>
+              <strong className="font-mono font-medium text-foreground">{formatGen(campaign.original_escrow)}</strong>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Locked</span>
-              <strong className="font-mono font-medium text-bone">{formatGen(campaign.locked_amount)}</strong>
+              <strong className="font-mono font-medium text-foreground">{formatGen(campaign.locked_amount)}</strong>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Gross paid</span>
-              <span className="font-mono text-ash">{formatGen(campaign.gross_paid)}</span>
+              <span className="font-mono text-muted-foreground">{formatGen(campaign.gross_paid)}</span>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>KOL received</span>
-              <span className="font-mono text-ash">{formatGen(campaign.net_paid)}</span>
+              <span className="font-mono text-muted-foreground">{formatGen(campaign.net_paid)}</span>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Platform fee</span>
-              <span className="font-mono text-ash">{formatGen(campaign.fees_paid)}</span>
+              <span className="font-mono text-muted-foreground">{formatGen(campaign.fees_paid)}</span>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Refunded</span>
-              <span className="font-mono text-ash">{formatGen(campaign.refunded)}</span>
+              <span className="font-mono text-muted-foreground">{formatGen(campaign.refunded)}</span>
             </div>
           </div>
         </GlassCard>
@@ -311,15 +311,15 @@ export default function CampaignPage() {
         {/* Counteroffer (Creator) */}
         {isCreator && Number(campaign.status) === 1 && (
           <GlassCard className="p-6">
-            <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Deadline proposal</h2>
+            <h2 className="mb-4 font-display text-[18px] font-semibold text-foreground">Deadline proposal</h2>
             <button
-              className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-black transition-all duration-200 hover:bg-bone"
+              className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-black transition-all duration-200 hover:bg-foreground"
               onClick={() => transact("approve_counteroffer", [id])}
             >
               Approve all proposed dates
             </button>
             <button
-              className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+              className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2.5 text-[13px] font-medium text-destructive transition-all duration-200 hover:bg-destructive/20"
               onClick={() => transact("cancel_unaccepted_campaign", [id])}
             >
               Cancel and refund
@@ -330,7 +330,7 @@ export default function CampaignPage() {
         {/* Cancel (Creator, OFFERED) */}
         {isCreator && Number(campaign.status) === 0 && (
           <button
-            className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2.5 text-[13px] font-medium text-destructive transition-all duration-200 hover:bg-destructive/20"
             onClick={() => transact("cancel_unaccepted_campaign", [id])}
           >
             Cancel and refund
@@ -340,7 +340,7 @@ export default function CampaignPage() {
         {/* Expire (after deadline) */}
         {[0, 1].includes(Number(campaign.status)) && nowSeconds > Number(campaign.acceptance_deadline) && (
           <button
-            className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2.5 text-[13px] font-medium text-destructive transition-all duration-200 hover:bg-destructive/20"
             onClick={() => transact("expire_unaccepted_campaign", [id])}
           >
             Expire invitation and refund
@@ -350,13 +350,13 @@ export default function CampaignPage() {
         {/* Termination request (Party, ACTIVE) */}
         {isParty && Number(campaign.status) === 2 && (
           <GlassCard className="p-6">
-            <h2 className="mb-2 font-display text-[18px] font-semibold text-bone">Request termination</h2>
-            <p className="mb-4 text-[13px] text-fog">
+            <h2 className="mb-2 font-display text-[18px] font-semibold text-foreground">Request termination</h2>
+            <p className="mb-4 text-[13px] text-muted-foreground">
               Past payouts remain final. Your statement and public evidence are permanent.
             </p>
             <div className="grid gap-3">
               <select
-                className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]"
+                className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]"
                 value={terminationCategory}
                 onChange={event => setTerminationCategory(event.target.value)}
               >
@@ -365,20 +365,20 @@ export default function CampaignPage() {
                 <option value="other">Other</option>
               </select>
               <textarea
-                className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                className="glass-input w-full rounded-xl px-4 py-2.5 text-foreground text-[14px] min-h-[100px] resize-vertical"
                 maxLength={2000}
                 placeholder="Public statement"
                 value={terminationStatement}
                 onChange={event => setTerminationStatement(event.target.value)}
               />
               <textarea
-                className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                className="glass-input w-full rounded-xl px-4 py-2.5 text-foreground text-[14px] min-h-[100px] resize-vertical"
                 placeholder="Public HTTPS evidence URLs, one per line (max 5)"
                 value={terminationUrls}
                 onChange={event => setTerminationUrls(event.target.value)}
               />
               <button
-                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2.5 text-[13px] font-medium text-destructive transition-all duration-200 hover:bg-destructive/20"
                 disabled={!terminationStatement.trim()}
                 onClick={() => transact("request_termination", [id, terminationCategory, terminationStatement.trim(), parseUrls(terminationUrls)])}
               >
@@ -391,29 +391,29 @@ export default function CampaignPage() {
         {/* Termination case (TERMINATION_PENDING) */}
         {Number(campaign.status) === 3 && (
           <GlassCard className="p-6">
-            <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Termination case</h2>
+            <h2 className="mb-4 font-display text-[18px] font-semibold text-foreground">Termination case</h2>
             <div className="grid gap-2 mb-4">
-              <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+              <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
                 <span>Category</span>
-                <strong className="font-mono font-medium text-bone">{termination.category.replaceAll("_", " ")}</strong>
+                <strong className="font-mono font-medium text-foreground">{termination.category.replaceAll("_", " ")}</strong>
               </div>
             </div>
-            <p className="mb-2 text-[14px] leading-[1.5] text-fog">{termination.statement}</p>
-            <p className="mb-4 text-[13px] text-ash">Response deadline: {formatDate(termination.response_deadline)}</p>
+            <p className="mb-2 text-[14px] leading-[1.5] text-muted-foreground">{termination.statement}</p>
+            <p className="mb-4 text-[13px] text-muted-foreground">Response deadline: {formatDate(termination.response_deadline)}</p>
 
             {/* Respondent statement */}
             {termination.respondent_statement && (
-              <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-4 mb-4">
-                <strong className="block text-[14px] text-bone">Response</strong>
-                <p className="mt-1 text-[13px] text-fog">{termination.respondent_statement}</p>
+              <div className="glass-inner rounded-xl border-l-[3px] border-l-primary p-4 mb-4">
+                <strong className="block text-[14px] text-foreground">Response</strong>
+                <p className="mt-1 text-[13px] text-muted-foreground">{termination.respondent_statement}</p>
               </div>
             )}
 
             {/* Ruling */}
             {termination.reason && (
-              <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-4 mb-4">
-                <strong className="block text-[14px] text-bone">Ruling {String(termination.ruling)}</strong>
-                <p className="mt-1 text-[13px] text-fog">{termination.reason}</p>
+              <div className="glass-inner rounded-xl border-l-[3px] border-l-primary p-4 mb-4">
+                <strong className="block text-[14px] text-foreground">Ruling {String(termination.ruling)}</strong>
+                <p className="mt-1 text-[13px] text-muted-foreground">{termination.reason}</p>
               </div>
             )}
 
@@ -421,20 +421,20 @@ export default function CampaignPage() {
             {isParty && !isRequester && responseOpen && (
               <div className="grid gap-3">
                 <textarea
-                  className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                  className="glass-input w-full rounded-xl px-4 py-2.5 text-foreground text-[14px] min-h-[100px] resize-vertical"
                   maxLength={2000}
                   placeholder="Public response (may be empty if evidence is supplied)"
                   value={responseStatement}
                   onChange={event => setResponseStatement(event.target.value)}
                 />
                 <textarea
-                  className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical"
+                  className="glass-input w-full rounded-xl px-4 py-2.5 text-foreground text-[14px] min-h-[100px] resize-vertical"
                   placeholder="Public HTTPS evidence URLs, one per line (max 5)"
                   value={responseUrls}
                   onChange={event => setResponseUrls(event.target.value)}
                 />
                 <button
-                  className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-black transition-all duration-200 hover:bg-bone"
+                  className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-black transition-all duration-200 hover:bg-foreground"
                   onClick={() => transact("respond_to_termination", [id, responseStatement.trim(), parseUrls(responseUrls)])}
                 >
                   Submit one-time response
@@ -445,7 +445,7 @@ export default function CampaignPage() {
             {/* Adjudicate button */}
             {isParty && adjudicationReady && (
               <button
-                className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-red/30 bg-red/10 px-5 py-2.5 text-[13px] font-medium text-red transition-all duration-200 hover:bg-red/20"
+                className="inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2.5 text-[13px] font-medium text-destructive transition-all duration-200 hover:bg-destructive/20"
                 onClick={() => transact("adjudicate_termination", [id])}
               >
                 Ask GenLayer to adjudicate
@@ -455,7 +455,7 @@ export default function CampaignPage() {
         )}
 
         {/* Error */}
-        {error && <p className="text-[13px] text-red">{error}</p>}
+        {error && <p className="text-[13px] text-destructive">{error}</p>}
 
         {/* TxProgress */}
         {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />}

@@ -5,17 +5,17 @@ export function CampaignStatus({ status }: { status: number }) {
     status === 2
       ? "border-green/30 text-green"
       : status === 4
-        ? "border-bone/20 text-bone"
+        ? "border-foreground/20 text-foreground"
         : status === 5
-          ? "border-red/30 text-red"
+          ? "border-destructive/30 text-destructive"
           : "border-amber/30 text-amber";
   const dot =
     status === 2
       ? "bg-green"
       : status === 4
-        ? "bg-bone"
+        ? "bg-foreground"
         : status === 5
-          ? "bg-red"
+          ? "bg-destructive"
           : "bg-amber";
   const pulse = status === 2 || status === 3;
   return (
@@ -31,19 +31,19 @@ export function CampaignStatus({ status }: { status: number }) {
 export function DemandStatus({ status }: { status: number }) {
   const tone =
     status === 3
-      ? "border-bone/20 text-bone"
+      ? "border-foreground/20 text-foreground"
       : status === 1 || status === 2
         ? "border-green/30 text-green"
         : status === 4
-          ? "border-red/30 text-red"
+          ? "border-destructive/30 text-destructive"
           : "border-amber/30 text-amber";
   const dot =
     status === 3
-      ? "bg-bone"
+      ? "bg-foreground"
       : status === 1 || status === 2
         ? "bg-green"
         : status === 4
-          ? "bg-red"
+          ? "bg-destructive"
           : "bg-amber";
   const pulse = status === 1 || status === 2;
   return (

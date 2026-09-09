@@ -73,42 +73,47 @@ export function WalletConnectModal({ onSuccess }: { onSuccess?: () => void }) {
   }
 
   return <>
-    <h2>Connect a wallet</h2>
-    <p className="confirm-message wallet-connect-intro">
+    <h2 className="mt-0 pr-8 font-display text-[22px] font-semibold tracking-[-0.02em] text-foreground">
+      Connect a wallet
+    </h2>
+    <p className="mt-3 text-[14px] leading-[1.6] text-muted-foreground">
       Choose a wallet installed in your browser to continue.
     </p>
     {wallets.length === 0 && scanning && (
-      <div className="wallet-empty">Detecting wallets…</div>
+      <div className="mt-4 flex items-center gap-2.5 rounded-xl px-4 py-8 text-center text-muted-foreground">
+        <span className="horkios-pulse mr-2.5 inline-block h-1.5 w-1.5 rounded-full bg-green" />
+        Detecting wallets…
+      </div>
     )}
     {wallets.length > 0 && (
-      <div className="wallet-list">
+      <div className="mt-4 grid gap-2">
         {wallets.map(wallet => (
           <button
             key={wallet.rdns}
-            className="wallet-option"
+            className="glass-input flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-white/[0.06]"
             onClick={() => handleConnect(wallet)}
             disabled={connecting !== null}
           >
             {wallet.icon ? (
-              <img src={wallet.icon} alt={wallet.name} />
+              <img className="size-8 rounded-lg" src={wallet.icon} alt={wallet.name} />
             ) : (
-              <span className="wallet-icon-fallback">🦊</span>
+              <span className="flex size-8 items-center justify-center rounded-lg bg-muted text-[18px]">🦊</span>
             )}
-            <span className="wallet-option-name">
+            <span className="flex-1 text-[14px] font-medium text-foreground">
               {connecting === wallet.rdns ? "Connecting…" : wallet.name}
             </span>
-            <span className="wallet-option-arrow">→</span>
+            <span className="text-muted-foreground">→</span>
           </button>
         ))}
       </div>
     )}
     {wallets.length === 0 && !scanning && (
-      <div className="wallet-empty">
+      <div className="mt-4 text-[14px] leading-[1.6] text-muted-foreground">
         No wallets detected. Install one to continue:
-        <div className="wallet-install">
-          <a href="https://metamask.io/download/" target="_blank" rel="noreferrer">MetaMask</a>
-          <a href="https://rabby.io/" target="_blank" rel="noreferrer">Rabby Wallet</a>
-          <a href="https://www.coinbase.com/wallet" target="_blank" rel="noreferrer">Coinbase Wallet</a>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" href="https://metamask.io/download/" target="_blank" rel="noreferrer">MetaMask</a>
+          <a className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" href="https://rabby.io/" target="_blank" rel="noreferrer">Rabby Wallet</a>
+          <a className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" href="https://www.coinbase.com/wallet" target="_blank" rel="noreferrer">Coinbase Wallet</a>
         </div>
       </div>
     )}

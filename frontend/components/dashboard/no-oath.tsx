@@ -42,7 +42,7 @@ export function NoOath({ variant, onConnect }: NoOathProps) {
         </EmptyHeader>
         <EmptyContent>
           <button
-            className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-bone"
+            className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
             onClick={onConnect}
           >
             Connect wallet <span>↗</span>
@@ -78,7 +78,7 @@ export function NoOath({ variant, onConnect }: NoOathProps) {
       </EmptyHeader>
       <EmptyContent>
         <Link
-          className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-bone"
+          className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
           href="/create"
         >
           Create your first oath <span>↗</span>

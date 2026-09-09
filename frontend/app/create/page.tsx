@@ -127,15 +127,15 @@ export default function CreatePage() {
         onResume={() => { if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) void monitorPending(pending); } }} />
       {invitation && <div className="glass grid gap-4 rounded-2xl p-6">
         <div className="text-green font-medium">Your oath is funded.</div>
-        <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone font-mono text-[13px] tabular-nums" readOnly value={invitation} />
+        <input className="glass-input w-full rounded-full px-4 py-2.5 text-foreground font-mono text-[13px] tabular-nums" readOnly value={invitation} />
         <div className="flex gap-2">
-          <button className="glass-input rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" onClick={async () => {
+          <button className="glass-input rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" onClick={async () => {
             await navigator.clipboard.writeText(invitation);
             if (address && contractAddress) { const pending = loadPendingCreate(networkName, contractAddress, address); if (pending) clearPendingCreate(pending); }
           }}>Copy invitation</button>
-          <Link className="glass-input inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" href={invitation}>Open invitation</Link>
+          <Link className="glass-input inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" href={invitation}>Open invitation</Link>
         </div>
-        <p className="text-ash text-[13px] leading-relaxed">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p>
+        <p className="text-muted-foreground text-[13px] leading-relaxed">Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.</p>
       </div>}
     </>);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
@@ -145,7 +145,7 @@ export default function CreatePage() {
     <div className="mb-12 flex items-end justify-between gap-8 max-[900px]:flex-col max-[900px]:items-start">
       <div>
         <SectionLabel label="Creator Workspace" className="mb-6" />
-        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-bone sm:text-[42px]">
+        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-foreground sm:text-[42px]">
           Create an oath
         </h1>
       </div>
@@ -155,10 +155,10 @@ export default function CreatePage() {
       <section className="grid gap-4">
         {/* Campaign basics */}
         <GlassCard className="p-6">
-          <h2 className="mt-0 mb-4 font-display text-[18px] font-semibold tracking-[-0.02em] text-bone">
+          <h2 className="mt-0 mb-4 font-display text-[18px] font-semibold tracking-[-0.02em] text-foreground">
             1. Campaign basics
           </h2>
-          <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-3 text-[13px] leading-[1.5] text-fog">
+          <div className="glass-inner rounded-xl border-l-[3px] border-l-primary p-3 text-[13px] leading-[1.5] text-muted-foreground">
             Every term, reason, and submitted proof is public and permanent.
           </div>
           <div className="mt-4 grid gap-3">
@@ -167,14 +167,14 @@ export default function CreatePage() {
                 <span className="section-label-slash">/</span>
                 <span className="ml-1">Campaign title</span>
               </label>
-              <input id="title" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" maxLength={120} value={draft.title} onChange={event => update("title", event.target.value)} />
+              <input id="title" className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" maxLength={120} value={draft.title} onChange={event => update("title", event.target.value)} />
             </div>
             <div className="grid gap-1.5">
               <label className="section-label text-[10px]" htmlFor="description">
                 <span className="section-label-slash">/</span>
                 <span className="ml-1">Public description</span>
               </label>
-              <textarea id="description" className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical" maxLength={2000} value={draft.description} onChange={event => update("description", event.target.value)} />
+              <textarea id="description" className="glass-input w-full rounded-xl px-4 py-2.5 text-foreground text-[14px] min-h-[100px] resize-vertical" maxLength={2000} value={draft.description} onChange={event => update("description", event.target.value)} />
             </div>
             <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
               <div className="grid gap-1.5">
@@ -182,21 +182,21 @@ export default function CreatePage() {
                   <span className="section-label-slash">/</span>
                   <span className="ml-1">Expected X account</span>
                 </label>
-                <input id="account" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" placeholder="@handle" value={draft.xAccount} onChange={event => update("xAccount", event.target.value)} />
+                <input id="account" className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" placeholder="@handle" value={draft.xAccount} onChange={event => update("xAccount", event.target.value)} />
               </div>
               <div className="grid gap-1.5">
                 <label className="section-label text-[10px]" htmlFor="acceptance">
                   <span className="section-label-slash">/</span>
                   <span className="ml-1">Invitation expires</span>
                 </label>
-                <input id="acceptance" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="datetime-local" value={draft.acceptanceDeadline} onChange={event => update("acceptanceDeadline", event.target.value)} />
+                <input id="acceptance" className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" type="datetime-local" value={draft.acceptanceDeadline} onChange={event => update("acceptanceDeadline", event.target.value)} />
               </div>
               <div className="grid gap-1.5">
                 <label className="section-label text-[10px]" htmlFor="escrow">
                   <span className="section-label-slash">/</span>
                   <span className="ml-1">Escrow (GEN)</span>
                 </label>
-                <input id="escrow" className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" inputMode="decimal" value={draft.escrowGen} onChange={event => update("escrowGen", event.target.value)} />
+                <input id="escrow" className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" inputMode="decimal" value={draft.escrowGen} onChange={event => update("escrowGen", event.target.value)} />
               </div>
             </div>
           </div>
@@ -205,19 +205,19 @@ export default function CreatePage() {
         {/* Demands */}
         <div className="grid gap-4">
           <div className="flex items-center justify-between gap-3.5">
-            <h2 className="mt-0 font-display text-[18px] font-semibold tracking-[-0.02em] text-bone">
+            <h2 className="mt-0 font-display text-[18px] font-semibold tracking-[-0.02em] text-foreground">
               2. Demands
             </h2>
-            <span className={`font-mono text-[11px] uppercase tracking-[0.16em] ${weightTotal === 10_000 ? "text-green" : "text-red"}`}>
+            <span className={`font-mono text-[11px] uppercase tracking-[0.16em] ${weightTotal === 10_000 ? "text-green" : "text-destructive"}`}>
               {(weightTotal / 100).toFixed(2)}% allocated
             </span>
           </div>
           {draft.demands.map((demand, index) => (
             <GlassCard key={index} className="p-6">
               <div className="flex items-center justify-between gap-3.5 mb-4">
-                <strong className="font-display text-[14px] font-medium text-bone">Demand {index + 1}</strong>
+                <strong className="font-display text-[14px] font-medium text-foreground">Demand {index + 1}</strong>
                 {draft.demands.length > 1 && (
-                  <button className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" onClick={() => removeDemand(index)}>
+                  <button className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" onClick={() => removeDemand(index)}>
                     Remove
                   </button>
                 )}
@@ -228,7 +228,7 @@ export default function CreatePage() {
                     <span className="section-label-slash">/</span>
                     <span className="ml-1">Required content</span>
                   </label>
-                  <textarea id={`instructions-${index}`} className="glass-input w-full rounded-xl px-4 py-2.5 text-bone text-[14px] min-h-[100px] resize-vertical" maxLength={1000} value={demand.instructions} onChange={event => updateDemand(index, { instructions: event.target.value })} />
+                  <textarea id={`instructions-${index}`} className="glass-input w-full rounded-xl px-4 py-2.5 text-foreground text-[14px] min-h-[100px] resize-vertical" maxLength={1000} value={demand.instructions} onChange={event => updateDemand(index, { instructions: event.target.value })} />
                 </div>
                 <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
                   <div className="grid gap-1.5">
@@ -236,21 +236,21 @@ export default function CreatePage() {
                       <span className="section-label-slash">/</span>
                       <span className="ml-1">Weight (%)</span>
                     </label>
-                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0.01" max="100" step="0.01" value={demand.weightBps / 100} onChange={event => updateDemand(index, { weightBps: Math.round(Number(event.target.value) * 100) })} />
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" type="number" min="0.01" max="100" step="0.01" value={demand.weightBps / 100} onChange={event => updateDemand(index, { weightBps: Math.round(Number(event.target.value) * 100) })} />
                   </div>
                   <div className="grid gap-1.5">
                     <label className="section-label text-[10px]">
                       <span className="section-label-slash">/</span>
                       <span className="ml-1">Deadline</span>
                     </label>
-                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="datetime-local" value={demand.deadline} onChange={event => updateDemand(index, { deadline: event.target.value })} />
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" type="datetime-local" value={demand.deadline} onChange={event => updateDemand(index, { deadline: event.target.value })} />
                   </div>
                   <div className="grid gap-1.5">
                     <label className="section-label text-[10px]">
                       <span className="section-label-slash">/</span>
                       <span className="ml-1">Minimum views</span>
                     </label>
-                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0" value={demand.minViews} onChange={event => updateDemand(index, { minViews: Number(event.target.value) })} />
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" type="number" min="0" value={demand.minViews} onChange={event => updateDemand(index, { minViews: Number(event.target.value) })} />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
@@ -259,20 +259,20 @@ export default function CreatePage() {
                       <span className="section-label-slash">/</span>
                       <span className="ml-1">Minimum likes</span>
                     </label>
-                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0" value={demand.minLikes} onChange={event => updateDemand(index, { minLikes: Number(event.target.value) })} />
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" type="number" min="0" value={demand.minLikes} onChange={event => updateDemand(index, { minLikes: Number(event.target.value) })} />
                   </div>
                   <div className="grid gap-1.5">
                     <label className="section-label text-[10px]">
                       <span className="section-label-slash">/</span>
                       <span className="ml-1">Minimum reposts</span>
                     </label>
-                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone text-[14px]" type="number" min="0" value={demand.minReposts} onChange={event => updateDemand(index, { minReposts: Number(event.target.value) })} />
+                    <input className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]" type="number" min="0" value={demand.minReposts} onChange={event => updateDemand(index, { minReposts: Number(event.target.value) })} />
                   </div>
                 </div>
               </div>
             </GlassCard>
           ))}
-          <button className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" disabled={draft.demands.length >= 10} onClick={addDemand}>
+          <button className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" disabled={draft.demands.length >= 10} onClick={addDemand}>
             Add demand
           </button>
         </div>
@@ -281,31 +281,31 @@ export default function CreatePage() {
       {/* Sidebar */}
       <aside className="grid gap-4 max-[900px]:static sticky top-[88px]">
         <GlassCard className="p-6">
-          <h2 className="mt-0 mb-4 font-display text-[18px] font-semibold tracking-[-0.02em] text-bone">
+          <h2 className="mt-0 mb-4 font-display text-[18px] font-semibold tracking-[-0.02em] text-foreground">
             Escrow summary
           </h2>
           <div className="grid gap-2">
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Total</span>
-              <strong className="font-mono font-medium text-bone">{draft.escrowGen || "0"} GEN</strong>
+              <strong className="font-mono font-medium text-foreground">{draft.escrowGen || "0"} GEN</strong>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Demands</span>
-              <strong className="font-mono font-medium text-bone">{draft.demands.length}</strong>
+              <strong className="font-mono font-medium text-foreground">{draft.demands.length}</strong>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Platform fee</span>
-              <span className="text-ash">1% of payouts</span>
+              <span className="text-muted-foreground">1% of payouts</span>
             </div>
-            <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+            <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
               <span>Refund fee</span>
-              <span className="text-ash">0%</span>
+              <span className="text-muted-foreground">0%</span>
             </div>
-            <div className="h-px bg-glass-border-subtle my-1" />
+            <div className="h-px bg-border/50 my-1" />
             {draft.demands.map((demand, index) => (
-              <div className="flex justify-between gap-4 py-2 text-[14px] text-fog" key={index}>
+              <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground" key={index}>
                 <span>Demand {index + 1}</span>
-                <span className="font-mono text-[13px] tabular-nums text-bone">
+                <span className="font-mono text-[13px] tabular-nums text-foreground">
                   {(() => {
                     try {
                       return formatGen(parseGen(draft.escrowGen || "0") * BigInt(demand.weightBps) / 10_000n);
@@ -317,9 +317,9 @@ export default function CreatePage() {
               </div>
             ))}
           </div>
-          {error && <p className="mt-4 text-[13px] text-red">{error}</p>}
+          {error && <p className="mt-4 text-[13px] text-destructive">{error}</p>}
           <button
-            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-bone"
+            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
             onClick={submit}
           >
             {address ? "Fund and create oath" : "Connect wallet"}
@@ -338,9 +338,9 @@ export default function CreatePage() {
         {!modalActive && invitation && (
           <GlassCard className="p-6">
             <div className="text-green font-medium mb-4">Your oath is funded.</div>
-            <input className="glass-input w-full rounded-full px-4 py-2.5 text-bone font-mono text-[13px] tabular-nums mb-4" readOnly value={invitation} />
+            <input className="glass-input w-full rounded-full px-4 py-2.5 text-foreground font-mono text-[13px] tabular-nums mb-4" readOnly value={invitation} />
             <button
-              className="glass-input inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]"
+              className="glass-input inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
               onClick={async () => {
                 await navigator.clipboard.writeText(invitation);
                 if (address && contractAddress) {
@@ -351,10 +351,10 @@ export default function CreatePage() {
             >
               Copy invitation
             </button>
-            <p className="mt-4 text-ash text-[13px] leading-relaxed">
+            <p className="mt-4 text-muted-foreground text-[13px] leading-relaxed">
               Anyone with this secret can bind the KOL wallet. HORKIOS cannot recover it.
             </p>
-            <Link className="glass-input mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-white/[0.06]" href={invitation}>
+            <Link className="glass-input mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]" href={invitation}>
               Open invitation
             </Link>
           </GlassCard>

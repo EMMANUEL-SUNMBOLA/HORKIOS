@@ -63,11 +63,11 @@ export default function InvitePage() {
   }, [modalActive, stage, hash, monitoringDelayed]);
 
   const campaign = query.data;
-  if (query.isLoading) return <div className="glass flex items-center justify-center rounded-2xl px-6 py-16 text-center text-fog">
+  if (query.isLoading) return <div className="glass flex items-center justify-center rounded-2xl px-6 py-16 text-center text-muted-foreground">
     <span className="horkios-pulse mr-2.5 inline-block h-1.5 w-1.5 rounded-full bg-green" />
     Opening private invitation…
   </div>;
-  if (!campaign) return <div className="glass flex items-center justify-center rounded-2xl px-6 py-16 text-center text-red">
+  if (!campaign) return <div className="glass flex items-center justify-center rounded-2xl px-6 py-16 text-center text-destructive">
     Invitation campaign not found.
   </div>;
 
@@ -75,17 +75,17 @@ export default function InvitePage() {
     <div className="mb-12 flex items-end justify-between gap-8 max-[900px]:flex-col max-[900px]:items-start">
       <div>
         <SectionLabel label={`Private invitation · Oath #${id}`} className="mb-6" />
-        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-bone sm:text-[42px]">
+        <h1 className="font-display text-[30px] font-semibold leading-none tracking-[-0.02em] text-foreground sm:text-[42px]">
           You have been invited to swear an oath.
         </h1>
-        <p className="mt-3 text-[14px] text-fog">
+        <p className="mt-3 text-[14px] text-muted-foreground">
           Creator {truncateAddress(campaign.creator)} · @{campaign.x_account} · expires {formatDate(campaign.acceptance_deadline)}
         </p>
       </div>
     </div>
 
     {!secret && (
-      <div className="glass-inner mb-6 rounded-xl border-l-[3px] border-l-copper p-4 text-[13px] leading-[1.5] text-fog">
+      <div className="glass-inner mb-6 rounded-xl border-l-[3px] border-l-primary p-4 text-[13px] leading-[1.5] text-muted-foreground">
         The invitation secret is missing. Ask the creator for the complete link.
       </div>
     )}
@@ -95,25 +95,25 @@ export default function InvitePage() {
         {campaign.demands.map((demand, index) => (
           <GlassCard key={index} className="p-6">
             <div className="flex items-center justify-between gap-3.5 mb-4">
-              <strong className="font-display text-[14px] font-medium text-bone">
+              <strong className="font-display text-[14px] font-medium text-foreground">
                 Demand {index + 1} of {campaign.demands.length}
               </strong>
-              <strong className="font-mono text-[14px] font-medium text-bone">
+              <strong className="font-mono text-[14px] font-medium text-foreground">
                 {formatGen(demand.allocation)} gross
               </strong>
             </div>
 
-            <p className="mb-4 text-[14px] leading-[1.5] text-fog">{demand.instructions}</p>
+            <p className="mb-4 text-[14px] leading-[1.5] text-muted-foreground">{demand.instructions}</p>
 
             {/* Requirements */}
             <div className="flex flex-wrap gap-1.5 mb-4">
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Views ≥ {String(demand.min_views)}
               </span>
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Likes ≥ {String(demand.min_likes)}
               </span>
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-fog">
+              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Due {formatDate(demand.original_deadline)}
               </span>
             </div>
@@ -132,7 +132,7 @@ export default function InvitePage() {
                   })}
                   className="accent-green"
                 />
-                <span className="text-[14px] text-bone">Accept this demand</span>
+                <span className="text-[14px] text-foreground">Accept this demand</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -146,11 +146,11 @@ export default function InvitePage() {
                   })}
                   className="accent-amber"
                 />
-                <span className="text-[14px] text-bone">Propose a later deadline</span>
+                <span className="text-[14px] text-foreground">Propose a later deadline</span>
               </label>
               {accepted[index] === false && (
                 <input
-                  className="glass-input mt-2 w-full rounded-full px-4 py-2.5 text-bone text-[14px]"
+                  className="glass-input mt-2 w-full rounded-full px-4 py-2.5 text-foreground text-[14px]"
                   type="datetime-local"
                   min={new Date((Number(demand.original_deadline) + 60) * 1000).toISOString().slice(0, 16)}
                   value={dates[index] ?? ""}
@@ -169,26 +169,26 @@ export default function InvitePage() {
       {/* Sidebar */}
       <aside className="max-[900px]:static sticky top-[88px]">
         <GlassCard className="p-6">
-          <h2 className="mb-4 font-display text-[18px] font-semibold text-bone">Before you sign</h2>
+          <h2 className="mb-4 font-display text-[18px] font-semibold text-foreground">Before you sign</h2>
 
-          <div className="glass-inner rounded-xl border-l-[3px] border-l-copper p-3 text-[13px] leading-[1.5] text-fog mb-4">
+          <div className="glass-inner rounded-xl border-l-[3px] border-l-primary p-3 text-[13px] leading-[1.5] text-muted-foreground mb-4">
             Terms, wallet addresses, evidence, and decisions are public.
           </div>
 
-          <div className="flex justify-between gap-4 py-2 text-[14px] text-fog">
+          <div className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground">
             <span>Gross compensation</span>
-            <strong className="font-mono font-medium text-bone">{formatGen(campaign.original_escrow)}</strong>
+            <strong className="font-mono font-medium text-foreground">{formatGen(campaign.original_escrow)}</strong>
           </div>
 
           <button
-            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-bone"
+            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
             disabled={!secret}
             onClick={review}
           >
             {address ? accepted.every(Boolean) ? "Swear to these terms" : "Send deadline proposal" : "Connect wallet"}
           </button>
 
-          {error && <p className="mt-3 text-[13px] text-red">{error}</p>}
+          {error && <p className="mt-3 text-[13px] text-destructive">{error}</p>}
         </GlassCard>
 
         {!modalActive && <TxProgress stage={stage} hash={hash} monitoringDelayed={monitoringDelayed} />}
