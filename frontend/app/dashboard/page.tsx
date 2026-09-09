@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { OathTable } from "@/components/dashboard/oath-table";
-import { EmptyState } from "@/components/dashboard/empty-state";
+import { NoOath } from "@/components/dashboard/no-oath";
 import { GlassCard } from "@/components/ui/glass-card";
 import { SectionLabel } from "@/components/ui/section-label";
 import { formatGen, truncateAddress } from "@/lib/format";
@@ -148,13 +148,7 @@ export default function DashboardPage() {
 
       {/* Content */}
       {!address ? (
-        <EmptyState
-          symbol="◎"
-          heading="Connect your working wallet."
-          description="Use the account you act with as a creator or KOL to reveal its oath records."
-          actionLabel="Connect wallet"
-          onAction={connect}
-        />
+        <NoOath variant="disconnected" onConnect={connect} />
       ) : idsQuery.isLoading ? (
         <div className="glass flex items-center gap-2.5 rounded-xl px-6 py-16 text-fog">
           <span className="horkios-pulse mr-2.5 inline-block h-1.5 w-1.5 rounded-full bg-green" />
@@ -166,13 +160,7 @@ export default function DashboardPage() {
           configuration.
         </div>
       ) : campaigns.length === 0 ? (
-        <EmptyState
-          symbol="◇"
-          heading="No oaths yet."
-          description="Your funded or accepted campaigns will appear here as permanent records."
-          actionLabel="Create your first oath"
-          actionHref="/create"
-        />
+        <NoOath variant="empty" />
       ) : (
         <OathTable
           campaigns={loaded}
