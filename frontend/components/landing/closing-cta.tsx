@@ -3,47 +3,17 @@ import { SectionLabel } from "@/components/ui/section-label";
 
 export function ClosingCTA() {
   return (
-    <section className="relative mt-20 overflow-hidden rounded-2xl border border-border bg-black/40 p-8 sm:mt-28 sm:p-12">
-      {/* Violet glow background */}
-      <div className="cta-glow absolute inset-0 opacity-50" />
-
-      {/* Animated background SVG */}
-      <div className="absolute inset-0 opacity-[0.04]">
-        <svg className="h-full w-full" viewBox="0 0 960 400" fill="none">
-          <path
-            d="M480 50L520 150H440L480 50Z"
-            stroke="white"
-            strokeWidth="0.5"
-            className="horkios-draw"
-          />
-          <path
-            d="M480 80L510 140H450L480 80Z"
-            stroke="white"
-            strokeWidth="0.3"
-            className="horkios-draw"
-            style={{ animationDelay: "0.3s" }}
-          />
-        </svg>
-      </div>
-
-      <div className="relative z-10 grid grid-cols-[1.4fr_0.6fr] items-end gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-10">
+    <section className="relative mt-20 overflow-hidden rounded-[28px] border border-[#9fc3bf] bg-[#d8f2ef] p-7 sm:mt-28 sm:p-12">
+      <div className="cta-glow absolute inset-0 opacity-80" aria-hidden="true" />
+      <div className="absolute right-10 top-8 hidden h-32 w-32 rounded-full border border-primary/20 sm:block" aria-hidden="true"><div className="m-5 h-20 w-20 rounded-full border border-primary/20 horkios-float" /></div>
+      <div className="relative z-10 grid grid-cols-[1.2fr_.8fr] items-end gap-16 max-[900px]:grid-cols-1 max-[900px]:gap-8">
         <div>
-          <SectionLabel label="Testnet Release" className="mb-6" />
-          <h2 className="mt-6 font-display text-[30px] font-semibold leading-[1.13] tracking-[-0.02em] text-foreground sm:text-[42px]">
-            Turn the next campaign<br />into a verifiable oath.
-          </h2>
+          <SectionLabel label="Testnet release" className="mb-5" />
+          <h2 className="m-0 max-w-[620px] font-display text-[32px] font-semibold leading-[1.05] tracking-[-.04em] text-[#003c39] sm:text-[48px]">Turn the next campaign into a verifiable oath.</h2>
         </div>
         <div>
-          <p className="text-[15px] leading-[1.5] text-muted-foreground">
-            Public testnet GEN has no monetary value. Build, test, and learn how
-            programmable agreements behave.
-          </p>
-          <Link
-            className="mt-5 inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
-            href="/create"
-          >
-            Start now <span>↗</span>
-          </Link>
+          <p className="text-[15px] leading-6 text-[#245b58]">Build, test, and learn how programmable agreements behave. Test GEN has no monetary value.</p>
+          <Link className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-[14px] font-semibold text-primary-foreground transition duration-200 hover:-translate-y-0.5 hover:bg-[#005753]" href="/create">Start with an oath <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
     </section>

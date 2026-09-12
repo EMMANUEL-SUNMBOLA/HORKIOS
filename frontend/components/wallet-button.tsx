@@ -78,7 +78,7 @@ export function WalletButton() {
   if (!address)
     return (
       <button
-        className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06]"
+        className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground"
         onClick={handleConnect}
         disabled={connecting}
         title={error}
@@ -91,7 +91,7 @@ export function WalletButton() {
     return (
       <div className="relative" ref={menuRef}>
         <button
-          className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-amber transition-colors duration-200 hover:bg-white/[0.06]"
+          className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-amber"
           onClick={handleSwitch}
           disabled={switching}
         >
@@ -99,7 +99,7 @@ export function WalletButton() {
           {switching ? "Switching…" : `Switch to ${networkLabel}`}
         </button>
         {switchError && (
-          <div className="absolute right-0 top-full mt-2 rounded-lg border border-destructive/20 bg-black/90 px-3 py-2 text-[12px] text-destructive backdrop-blur-xl">
+          <div className="absolute right-0 top-full mt-2 rounded-lg border border-destructive/20 bg-card px-3 py-2 text-[12px] text-destructive shadow-lg">
             {switchError}
           </div>
         )}
@@ -109,7 +109,7 @@ export function WalletButton() {
   return (
     <div className="relative" ref={menuRef}>
       <button
-        className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06]"
+        className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-foreground"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -125,7 +125,7 @@ export function WalletButton() {
         </svg>
       </button>
       {open && (
-        <div className="glass absolute right-0 top-full mt-2 min-w-[200px] p-2" role="menu">
+          <div className="glass absolute right-0 top-full mt-2 min-w-[200px] p-2 shadow-[0_12px_32px_rgba(16,32,31,.12)]" role="menu">
           <div className="border-b border-border/50 px-3 py-2">
             <span className="section-label text-[10px]">
               <span className="section-label-slash">/</span>
@@ -135,7 +135,7 @@ export function WalletButton() {
           </div>
           <button
             role="menuitem"
-            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground"
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             onClick={copyAddress}
           >
             <span>{copied ? "Address copied" : "Copy address"}</span>
@@ -143,7 +143,7 @@ export function WalletButton() {
           </button>
           <button
             role="menuitem"
-            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground"
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             onClick={handleDisconnect}
           >
             <span>Disconnect</span>

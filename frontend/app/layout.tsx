@@ -7,24 +7,24 @@ import { MobileHeader } from "@/components/layout/mobile-header";
 import { Footer } from "@/components/layout/footer";
 import { cn } from "@/lib/utils";
 
-const montserrat = Montserrat({
+const aeonikFallback = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-display",
+  variable: "--font-aeonik-fallback",
   display: "swap",
 });
 
-const roboto = Roboto({
+const bodyFallback = Roboto({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
-  variable: "--font-sans",
+  variable: "--font-body-fallback",
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const inputFallback = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-mono",
+  variable: "--font-input-fallback",
   display: "swap",
 });
 
@@ -33,20 +33,15 @@ export const metadata: Metadata = {
   description: "Verifiable work and trustless settlement on GenLayer.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={cn(montserrat.variable, roboto.variable, jetbrainsMono.variable, "font-sans")}
-    >
+    <html lang="en" className={cn(aeonikFallback.variable, bodyFallback.variable, inputFallback.variable)}>
       <body>
         <Providers>
           <div className="flex min-h-screen flex-col">
             <Header />
             <MobileHeader />
-            <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 pt-28 pb-40 sm:px-8 sm:pt-36 md:pt-44">
+            <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 pt-24 pb-24 sm:px-8 sm:pt-32 md:pt-36">
               {children}
             </main>
             <Footer />
