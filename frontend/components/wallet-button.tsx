@@ -7,6 +7,7 @@ import { truncateAddress } from "@/lib/format";
 import { networkName } from "@/lib/contract";
 import { useModal } from "@/components/modal";
 import { WalletConnectModal } from "@/components/wallet-connect-modal";
+import { CopyButton } from "@/components/ui/copy-button";
 
 const networkLabel =
   networkName === "testnetBradbury"
@@ -108,8 +109,9 @@ export function WalletButton() {
 
   return (
     <div className="relative" ref={menuRef}>
+      <div className="flex items-center gap-1.5">
       <button
-        className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-foreground"
+        className="glass-input flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-foreground"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -124,6 +126,8 @@ export function WalletButton() {
           <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
+      <CopyButton value={address} label="Copy wallet address" />
+      </div>
       {open && (
           <div className="glass absolute right-0 top-full mt-2 min-w-[200px] p-2 shadow-[0_12px_32px_rgba(16,32,31,.12)]" role="menu">
           <div className="border-b border-border/50 px-3 py-2">
@@ -131,7 +135,7 @@ export function WalletButton() {
               <span className="section-label-slash">/</span>
               <span className="ml-1">Connected Wallet</span>
             </span>
-            <div className="mt-1 font-mono text-[13px] text-foreground">{truncateAddress(address)}</div>
+            <div className="mt-1 flex items-center gap-2 font-mono text-[13px] text-foreground"><span>{truncateAddress(address)}</span><CopyButton value={address} label="Copy wallet address" /></div>
           </div>
           <button
             role="menuitem"

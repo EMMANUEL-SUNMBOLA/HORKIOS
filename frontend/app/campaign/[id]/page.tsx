@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { CampaignStatus, DemandStatus } from "@/components/ui/status-badge";
 import { TxProgress } from "@/components/ui/tx-progress";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { CopyButton } from "@/components/ui/copy-button";
 import { GlassCard } from "@/components/ui/glass-card";
 import { SectionLabel } from "@/components/ui/section-label";
 import { useModal } from "@/components/modal";
@@ -150,7 +151,7 @@ export default function CampaignPage() {
           {campaign.title}
         </h1>
         <p className="mt-3 text-[14px] text-muted-foreground">
-          @{campaign.x_account} · {truncateAddress(campaign.creator)} ↔ {truncateAddress(campaign.kol)}
+          @{campaign.x_account} · <span className="inline-flex items-center gap-1">{truncateAddress(campaign.creator)}<CopyButton value={campaign.creator} label="Copy creator wallet" /></span> ↔ <span className="inline-flex items-center gap-1">{truncateAddress(campaign.kol)}<CopyButton value={campaign.kol} label="Copy KOL wallet" /></span>
         </p>
       </div>
       <CampaignStatus status={Number(campaign.status)} />

@@ -23,8 +23,8 @@ function OathPreview() {
         </div>
         <div className="grid gap-5 px-2 py-5 sm:grid-cols-[1.15fr_.85fr] sm:items-center">
           <div>
-            <p className="mb-2 font-mono text-[11px] uppercase tracking-[.13em] text-[#006763]">KOL campaign · #HORK-024</p>
-            <h2 className="font-display text-[24px] font-semibold leading-[1.08] tracking-[-.03em] text-[#171d1c] sm:text-[29px]">Launch week content oath</h2>
+            <p className="mb-2 font-mono text-[11px] uppercase tracking-[.13em] text-[#006763]">Successful escrows · 8/10</p>
+            <h2 className="font-display text-[24px] font-semibold leading-[1.08] tracking-[-.03em] text-[#171d1c] sm:text-[29px]">A campaign that settles itself.</h2>
             <p className="mt-3 max-w-[440px] text-[14px] leading-6 text-[#596563]">Terms are visible. Evidence is public. Settlement follows the decision, not a middleman.</p>
           </div>
           <div className="relative flex items-center justify-center py-2">
@@ -32,7 +32,7 @@ function OathPreview() {
               <circle cx="72" cy="72" r="57" stroke="#d8f2ef" strokeWidth="7" />
               <circle cx="72" cy="72" r="57" stroke="#00837d" strokeWidth="7" strokeLinecap="round" strokeDasharray="80 278" className="horkios-sweep" transform="rotate(-90 72 72)" />
               <circle cx="72" cy="72" r="39" fill="#effaf8" />
-              <path d="m57 72 10 10 21-23" stroke="#006763" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="m62 72 7 7 14-16" stroke="#006763" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <div className="absolute text-center">
               <div className="font-mono text-[21px] font-semibold text-[#006763]">02/04</div>
@@ -68,20 +68,16 @@ export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
         </p>
         <div className="mt-8"><AudienceToggle audience={audience} onChange={onAudienceChange} /></div>
         {audience === "agent" && <div className="mb-2 w-full max-w-[600px]"><AgentGuide /></div>}
-        <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-          {audience === "human" ? (
-            <>
-              <Link className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-[14px] font-semibold text-primary-foreground shadow-[0_8px_20px_rgba(0,103,99,.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#005753]" href="/create">Create an oath <span aria-hidden="true">↗</span></Link>
-              <Link className="glass-input inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 text-[14px] font-semibold text-foreground" href="/how-it-works">See how it works</Link>
-            </>
-          ) : (
-            <>
-              <Link className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-[14px] font-semibold text-primary-foreground shadow-[0_8px_20px_rgba(0,103,99,.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#005753]" href="/how-it-works">Read the docs <span aria-hidden="true">↗</span></Link>
-              <Link className="glass-input inline-flex min-h-11 items-center justify-center gap-2 px-6 py-3 text-[14px] font-semibold text-foreground" href="/create">Try the UI first</Link>
-            </>
-          )}
-        </div>
         <OathPreview />
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {audience === "human" ? <>
+            <Link className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(0,103,99,.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#005753]" href="/create">Create an oath <span aria-hidden="true">↗</span></Link>
+            <Link className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-[14px] font-semibold text-foreground transition-colors hover:border-primary hover:bg-accent" href="/how-it-works">See how it works</Link>
+          </> : <>
+            <Link className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(0,103,99,.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#005753]" href="/how-it-works">Read the docs <span aria-hidden="true">↗</span></Link>
+            <Link className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-[14px] font-semibold text-foreground transition-colors hover:border-primary hover:bg-accent" href="/create">Try the UI first</Link>
+          </>}
+        </div>
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { OathTable } from "@/components/dashboard/oath-table";
 import { NoOath } from "@/components/dashboard/no-oath";
 import { GlassCard } from "@/components/ui/glass-card";
+import { CopyButton } from "@/components/ui/copy-button";
 import { SectionLabel } from "@/components/ui/section-label";
 import { formatGen, truncateAddress } from "@/lib/format";
 import {
@@ -88,7 +89,7 @@ export default function DashboardPage() {
             <span className="ml-1">Connected Account</span>
           </span>
           <strong className="mt-6 font-display text-[22px] font-semibold text-foreground">
-            {address ? truncateAddress(address) : "NOT CONNECTED"}
+            {address ? <span className="flex items-center gap-2">{truncateAddress(address)}<CopyButton value={address} label="Copy wallet address" /></span> : "NOT CONNECTED"}
           </strong>
           <span className="mt-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             <span

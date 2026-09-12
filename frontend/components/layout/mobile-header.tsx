@@ -10,7 +10,7 @@ export function MobileHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 md:hidden">
       <div className="flex items-center justify-between border-b border-border bg-background/90 px-5 py-3 backdrop-blur-md">
-        <Link className="flex items-center gap-2 font-display text-lg font-semibold tracking-[-.03em] text-foreground" href="/"><span className="h-2.5 w-2.5 rounded-full bg-primary" aria-hidden="true" />HORKIOS</Link>
+        <Link className="font-display text-lg font-semibold tracking-[-.03em] text-foreground" href="/">HORKIOS</Link>
         <div className="flex items-center gap-2">
           <WalletButton />
           <button className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>

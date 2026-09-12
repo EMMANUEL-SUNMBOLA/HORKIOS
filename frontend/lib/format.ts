@@ -30,6 +30,10 @@ export function truncateAddress(value?: string): string {
   return value && value.length > 12 ? `${value.slice(0, 6)}…${value.slice(-4)}` : value || "Not connected";
 }
 
+export function truncateHash(value?: string): string {
+  return value && value.length > 14 ? `${value.slice(0, 8)}…${value.slice(-6)}` : value || "Not available";
+}
+
 export function campaignStatus(status: number): string {
   return ["Awaiting KOL review", "Deadline proposal pending", "Oath active", "Termination under review", "Oath settled", "Cancelled and refunded"][status] ?? "Unknown";
 }

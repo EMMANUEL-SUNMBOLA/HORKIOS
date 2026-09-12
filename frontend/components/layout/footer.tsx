@@ -1,4 +1,6 @@
 import { contractAddress, networkName } from "@/lib/contract";
+import { CopyableValue } from "@/components/ui/copy-button";
+import { truncateHash } from "@/lib/format";
 
 export function Footer() {
   const network = networkName.toUpperCase();
@@ -12,8 +14,8 @@ export function Footer() {
         <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           HORKIOS &copy; 2026
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-          GENLAYER {network} · {addressDisplay}
+        <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+          GENLAYER {network} · {contractAddress ? <CopyableValue value={contractAddress} displayValue={truncateHash(contractAddress)} label="Copy contract address" /> : addressDisplay}
         </span>
         <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           TEST GEN HAS NO MONETARY VALUE

@@ -148,3 +148,19 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
 }
+
+/* Rectangular fields are easier to scan than pill-shaped inputs. Pills remain reserved for compact status and identity controls. */
+input.glass-input,
+textarea.glass-input,
+select.glass-input {
+  border-radius: 10px;
+}
+
+/* Primary surfaces always use white content for reliable contrast. */
+.bg-primary {
+  color: #ffffff;
+}
+
+
+/* Action buttons use a soft rectangle; pills stay available for tags, toggles, and compact identity controls. */
+button.rounded-full { border-radius: 8px; }
