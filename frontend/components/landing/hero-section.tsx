@@ -11,77 +11,7 @@ type HeroSectionProps = {
 
 export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
   return (
-    <section className=" min-h-[100svh] overflow-hidden p-0">
-      {/* Hero gradient band */}
-      <div className="hero-gradient absolute inset-0" />
-
-      {/* Animated background SVG — spans full width */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.08]">
-        <svg
-          className="absolute inset-0 h-full w-full"
-          viewBox="0 0 1920 1080"
-          preserveAspectRatio="xMidYMid slice"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Vertical grid lines */}
-          {Array.from({ length: 40 }).map((_, i) => (
-            <line
-              key={`v${i}`}
-              x1={i * 50}
-              y1="0"
-              x2={i * 50}
-              y2="1080"
-              stroke="white"
-              strokeWidth="0.5"
-              className="horkios-dash"
-              style={{ strokeDasharray: "4 4", animationDelay: `${i * 0.05}s` }}
-            />
-          ))}
-          {/* Horizontal grid lines */}
-          {Array.from({ length: 22 }).map((_, i) => (
-            <line
-              key={`h${i}`}
-              x1="0"
-              y1={i * 50}
-              x2="1920"
-              y2={i * 50}
-              stroke="white"
-              strokeWidth="0.5"
-              className="horkios-dash"
-              style={{ strokeDasharray: "4 4", animationDelay: `${i * 0.05}s` }}
-            />
-          ))}
-          {/* Decorative circles */}
-          <circle
-            cx="960"
-            cy="540"
-            r="200"
-            stroke="white"
-            strokeWidth="0.5"
-            className="horkios-draw"
-          />
-          <circle
-            cx="960"
-            cy="540"
-            r="300"
-            stroke="white"
-            strokeWidth="0.3"
-            className="horkios-draw"
-            style={{ animationDelay: "0.3s" }}
-          />
-          <circle
-            cx="960"
-            cy="540"
-            r="400"
-            stroke="white"
-            strokeWidth="0.2"
-            className="horkios-draw"
-            style={{ animationDelay: "0.6s" }}
-          />
-        </svg>
-      </div>
-
+    <section className="relative min-h-[100svh] overflow-hidden p-0">
       {/* Content */}
       <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1180px] flex-col items-center justify-center px-5 text-center sm:px-8">
         {/* Headline */}
@@ -128,17 +58,24 @@ export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
         <div className="flex flex-wrap items-center justify-center gap-3">
           {audience === "human" ? (
             <>
+              {/* First Button: Outline Style (Fills color from Left to Right) */}
               <Link
-                className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full  px-6 py-3 text-[14px] font-medium transition-all duration-200 "
+                className="group relative inline-flex min-h-10 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-lg border border-primary px-6 py-3 font-medium text-primary transition-colors duration-500 before:absolute before:inset-0 before:start-0 before:w-0 before:bg-primary before:transition-all before:duration-500 hover:before:w-full"
                 href="/create"
               >
-                Create an oath <span>↗</span>
+                <span className="relative z-10 flex items-center gap-2 group-hover:!text-white transition-colors duration-500">
+                  Create an oath <span>↗</span>
+                </span>
               </Link>
+
+              {/* Second Button: Solid Style (Color leaves through the Right) */}
               <Link
-                className="glass-input inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-[14px] font-medium text-foreground transition-colors duration-200 hover:bg-white/[0.06]"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg border border-primary bg-primary px-6 py-3 font-medium !text-white transition-colors duration-500 before:absolute before:inset-0 before:start-0 before:w-0 before:bg-white before:transition-all before:duration-500 hover:before:w-full"
                 href="/dashboard"
               >
-                Open dashboard
+                <span className="relative z-10 flex items-center gap-2 group-hover:!text-primary transition-colors duration-500">
+                  Open dashboard
+                </span>
               </Link>
             </>
           ) : (
@@ -157,14 +94,6 @@ export function HeroSection({ audience, onAudienceChange }: HeroSectionProps) {
               </Link>
             </>
           )}
-        </div>
-
-        {/* Bottom label */}
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center">
-          <span className="section-label text-[10px]">
-            <span className="section-label-slash">/</span>
-            <span className="ml-1">Verifiable Agreements</span>
-          </span>
         </div>
       </div>
     </section>

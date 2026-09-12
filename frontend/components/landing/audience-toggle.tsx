@@ -29,7 +29,7 @@ export function AudienceToggle({ audience, onChange }: AudienceToggleProps) {
         aria-selected={audience === "agent"}
         className={`rounded-full px-5 py-2 text-[13px] font-medium tracking-[0.01em] transition-colors duration-200 ease-default ${
           audience === "agent"
-            ? "bg-lavender text-background"
+            ? "bg-primary text-background"
             : "bg-transparent text-muted-foreground hover:text-foreground"
         }`}
         onClick={() => onChange("agent")}

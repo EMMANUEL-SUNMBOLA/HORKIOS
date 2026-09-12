@@ -26,11 +26,11 @@ export function AgentGuide() {
         return (
           <div
             key={step.title}
-            className="flex flex-col gap-2.5 border-b border-border bg-background p-5 transition-colors duration-200 ease-default last:border-b-0 hover:bg-secondary"
+            className="flex flex-col gap-2.5 border-b border-border bg-background p-3 transition-colors duration-200 ease-default last:border-b-0"
           >
             {/* Header row: Number and Title inline */}
             <div className="flex items-center gap-3">
-              <span className="flex h-5 w-7 items-center justify-center rounded-[var(--radius-sm)] border border-border bg-background font-mono text-[11px] font-medium text-lavender">
+              <span className="flex h-5 w-7 items-center justify-center rounded-[var(--radius-sm)] border border-border bg-background font-mono text-[11px] font-medium">
                 {stepNumber}
               </span>
               <strong className="text-sm font-medium text-foreground">
@@ -39,10 +39,10 @@ export function AgentGuide() {
             </div>
 
             {/* Description and Code stacked naturally */}
-            <p className="m-0 text-[13px] text-muted-foreground">{step.desc}</p>
+            <p className="m-0 text-[13px] flex pl-10 text-muted-foreground">{step.desc}</p>
 
-            <div>
-              <code className="inline-block w-fit rounded-[var(--radius-sm)] border border-border bg-background px-2 py-1 font-mono text-[11px] tracking-[0.02em] text-lavender">
+            <div className="pl-10">
+              <code className="flex w-fit rounded-[var(--radius-sm)] border border-border bg-background px-2 py-1 font-mono text-[11px] tracking-[0.02em] text-secondary">
                 {step.code}
               </code>
             </div>
