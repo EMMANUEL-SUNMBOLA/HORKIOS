@@ -17,9 +17,10 @@ export function Footer() {
         <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           GENLAYER {network} · {contractAddress ? <CopyableValue value={contractAddress} displayValue={truncateHash(contractAddress)} label="Copy contract address" /> : addressDisplay}
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-          TEST GEN HAS NO MONETARY VALUE
-        </span>
+        <div className="flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+          <a className="transition-colors hover:text-primary" href="https://t.me/caveman_xx" target="_blank" rel="noreferrer">CONTACT</a>
+          <span>TEST GEN HAS NO MONETARY VALUE</span>
+        </div>
       </div>
     </footer>
   );
