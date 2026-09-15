@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { Address } from "./types";
-import { networkName, expectedChainId, officialChain, writeClient } from "./contract";
+import { expectedChainId, officialChain } from "./contract";
 
 type EthereumProvider = {
   request(args: { method: string; params?: unknown[] }): Promise<unknown>;
@@ -80,11 +80,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     return connectWithProvider(wallet);
   }, [connectWithProvider]);
 
-  const ensureNetwork = useCallback(async () => {
-    if (!address) throw new Error("Connect your wallet first");
-    await writeClient(address).connect(networkName as "localnet" | "studionet" | "testnetBradbury");
-  }, [address]);
-
   const disconnect = useCallback(() => {
     setAddress(undefined);
     setChainId(undefined);
@@ -130,6 +125,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const clearSwitchError = useCallback(() => setSwitchError(undefined), []);
 
   const wrongChain = chainId !== undefined && chainId !== expectedChainId;
+
+  const ensureNetwork = useCallback(async () => {
+    if (!address) throw new Error("Connect your wallet first");
+    if (!wrongChain) return;
+    await switchChain();
+  }, [address, wrongChain, switchChain]);
 
   const value = useMemo(() => ({ address, chainId, wrongChain, connecting, switching, switchError, error, connect, connectWithProvider, disconnect, ensureNetwork, switchChain, clearSwitchError }), [address, chainId, wrongChain, connecting, switching, switchError, error, connect, connectWithProvider, disconnect, ensureNetwork, switchChain, clearSwitchError]);
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;

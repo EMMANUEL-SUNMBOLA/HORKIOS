@@ -1,0 +1,87 @@
+HORKIOS — GenLayer Builders Program Submission
+================================================
+
+00 Track
+-------
+Agentic Commerce Infrastructure
+
+01 GitHub repository
+--------------------
+https://github.com/EMMANUEL-SUNMBOLA/HORKIOS
+
+02 Identity — Project name
+--------------------------
+HORKIOS
+
+03 One-liner (180 chars max)
+----------------------------
+A trustless KOL campaign escrow where GenLayer validators verify public X/Twitter evidence and auto-settle funded oaths.
+
+04 Project overview (1000 chars max)
+-------------------------------------
+HORKIOS is a Web3 escrow SaaS built on GenLayer Intelligent Contracts. It turns a working campaign agreement into a public, wallet-signed oath:
+
+1. A creator defines weighted demands (e.g. "post must mention gm"), funds the escrow in native GEN, and shares a private invitation link.
+2. The KOL reviews each demand, accepts or proposes later deadlines, and signs.
+3. The KOL submits canonical X/Twitter post URLs as evidence.
+4. GenLayer validators independently render the page, run an LLM, reach consensus, and the escrow auto-settles each milestone.
+
+Key differentiators:
+- No admin wallet, no operator override — neither party can unilaterally withdraw after activation.
+- 1% platform fee charged only on successful KOL payouts. Refunds carry no fee.
+- Everything is public: terms, wallets, evidence, and decisions are permanent on-chain.
+- Verification uses gl.eq_principle.prompt_non_comparative for consensus across validators, not a single oracle.
+
+Built with Next.js 16, React 19, TypeScript, genlayer-js, and a 761-line GenLayer Intelligent Contract with 11 write methods, 8 views, and full financial accounting.
+
+05 Demo video
+-------------
+URL: https://www.youtube.com/watch?v=[REPLACE_WITH_YOUR_VIDEO_ID]
+
+Demo flow:
+1. Creator connects wallet on horkios.vercel.app
+2. Creates an oath with one demand: "post must mention gm", funded with 10 GEN
+3. Shares the invite link with the KOL
+4. KOL accepts the demand via the invite page
+5. KOL submits a real X/Twitter post URL as proof
+6. Clicks "Ask GenLayer to verify"
+7. GenLayer validators render the X page, run LLM analysis, reach consensus
+8. Verification passes — escrow settles, KOL paid 9.9 GEN (1% fee), creator refunded 0 GEN
+9. Dashboard shows "OATH SETTLED" with full accounting
+
+06 How-to steps
+---------------
+Step 1: Connect a MetaMask or compatible wallet funded with test GEN on Studionet (chain 61999).
+Step 2: Click "Create oath" in the navigation bar.
+Step 3: Fill in the oath form — title, description, X/Twitter handle, acceptance deadline, and at least one demand with weight, deadline, and optional engagement thresholds.
+Step 4: Enter the escrow amount in GEN and click "Create oath" to submit the transaction.
+Step 5: Copy the generated invite link and share it with the KOL.
+Step 6: As the KOL, open the invite link, review each demand, accept or propose new deadlines, and sign.
+Step 7: After activation, submit a canonical X/Twitter post URL as evidence for each demand.
+Step 8: Click "Ask GenLayer to verify" and wait for validator consensus.
+Step 9: If all demands pass, the oath settles automatically — KOL is paid, creator is refunded remaining escrow.
+Step 10: View full accounting on the campaign page — locked, paid, fee, and refunded amounts.
+
+07 Review verification outcome
+-------------------------------
+After following the how-to steps above, the steward should see:
+- A new campaign created on Studionet with status "OATH ACTIVE" then "OATH SETTLED"
+- Demand status changed from "PROPOSED" to "PASSED"
+- Escrow accounting showing: Original 10 GEN, Locked 0 GEN, Gross paid 10 GEN, KOL received 9.9 GEN, Platform fee 0.1 GEN, Refunded 0 GEN
+- The contract at 0xE1f66188e9200258A60d9AD7782A858f2E7d36eb on Studionet (chain 61999)
+- get_config() returns fee_recipient, release_id "horkios-escrow-2026-08-storage-v2", fee_bps 100, max_demands 10, termination_window 172800
+
+08 Contract deployment (Studio Next — chain 61997)
+---------------------------------------------------
+[REPLACE_WITH_STUDIO_NEXT_DEPLOYMENT_ADDRESS]
+https://explorer-studio-dev.genlayer.com/address/0x[REPLACE]
+
+NOTE: Deploy the latest contracts/HorkiosEscrow.py on Studio Next (chain 61997) before submitting.
+The Studionet (chain 61999) deployment at 0xE1f66188e9200258A60d9AD7782A858f2E7d36eb is
+for testing. The portal requires a Studio Next deployment link.
+
+09 Project links
+-----------------
+Website: https://horkios.vercel.app
+GitHub: https://github.com/EMMANUEL-SUNMBOLA/HORKIOS
+Contract (Studionet): https://explorer-studionet.genlayer.com/address/0xE1f66188e9200258A60d9AD7782A858f2E7d36eb
