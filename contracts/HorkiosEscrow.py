@@ -504,6 +504,7 @@ class HorkiosEscrow(gl.Contract):
         likes_target = int(demand.min_likes)
         reposts_target = int(demand.min_reposts)
         checked_at = _now()
+        regex_metrics = {"views": 0, "likes": 0, "reposts": 0}
 
         def classify() -> str:
             page = None
@@ -535,6 +536,22 @@ class HorkiosEscrow(gl.Contract):
                     "observed_reposts": 0,
                     "reason": "Failed to load page via both direct render and oembed get",
                 })
+            regex_views = 0
+            regex_likes = 0
+            regex_reposts = 0
+            if page:
+                views_m = re.search(r'ViewCountInfo",count:"(\d+)"', page)
+                likes_m = re.search(r'favorite_count:(\d+)', page)
+                reposts_m = re.search(r'retweet_count:(\d+)', page)
+                if views_m:
+                    regex_views = int(views_m.group(1))
+                if likes_m:
+                    regex_likes = int(likes_m.group(1))
+                if reposts_m:
+                    regex_reposts = int(reposts_m.group(1))
+            regex_metrics["views"] = regex_views
+            regex_metrics["likes"] = regex_likes
+            regex_metrics["reposts"] = regex_reposts
             return f"""
 Extract data from this X/Twitter post page and check if it matches the requirements.
 Return ONLY compact JSON with exactly these fields as raw values:
@@ -545,9 +562,17 @@ Return ONLY compact JSON with exactly these fields as raw values:
 - text (string): the full text content of the tweet
 - content_matches (boolean): true if the tweet content satisfies the requirements below
 - published_at_unix (integer): tweet creation time as Unix seconds, 0 if unknown
-- observed_views (integer): view count, 0 if not visible
-- observed_likes (integer): like count, 0 if not visible
-- observed_reposts (integer): repost/retweet count, 0 if not visible
+- observed_views (integer): view count
+- observed_likes (integer): like count
+- observed_reposts (integer): repost/retweet count
+
+PRE-EXTRACTED ENGAGEMENT METRICS (from React/Relay state via regex):
+- observed_views: {regex_views}
+- observed_likes: {regex_likes}
+- observed_reposts: {regex_reposts}
+These were extracted from <script> tags in the page source. Validate them against
+the page. If they look correct, use them. If the page clearly shows different
+values, correct them.
 
 Requirements to check: {instructions}
 
@@ -569,6 +594,12 @@ Data source: {source}
         self.last_raw_result = str(raw_result)[:2000]
         parsed = _extract_json(raw_result)
         result = self._normalize_analysis(parsed, expected_handle, url)
+        if not result["observed_views"] and regex_metrics["views"]:
+            result["observed_views"] = regex_metrics["views"]
+        if not result["observed_likes"] and regex_metrics["likes"]:
+            result["observed_likes"] = regex_metrics["likes"]
+        if not result["observed_reposts"] and regex_metrics["reposts"]:
+            result["observed_reposts"] = regex_metrics["reposts"]
 
         expected_status_id = urlparse(url).path.rstrip("/").split("/")[-1]
         post_exists = result["post_exists"]
