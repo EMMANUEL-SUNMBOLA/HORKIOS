@@ -1,21 +1,45 @@
 import Link from "next/link";
 
 const sections: [string, string, string][] = [
-  ["01", "Write public terms", "The creator defines up to ten weighted demands, measurable X thresholds, acceptance and delivery deadlines, then locks native test GEN."],
-  ["02", "Share the private invitation", "The URL carries a one-time secret in its fragment. Only its SHA-256 commitment reaches the chain; the first matching wallet becomes the KOL."],
-  ["03", "Accept or counter", "The KOL accepts each demand or proposes a strictly later deadline. Any counteroffer needs creator approval before the oath activates."],
-  ["04", "Submit canonical proof", "The KOL submits an exact public X status URL. GenLayer validators independently render it and compare authorship, status ID, content, time, and enabled metrics."],
-  ["05", "Settle each milestone", "A passing demand releases its allocation minus the 1% platform fee. An expired demand receives one final check before an unfee'd creator refund."],
-  ["06", "Handle exceptional termination", "Either party may open a public case. Past payouts stay final, the other party gets 48 hours to respond, and GenLayer rules on remaining escrow."],
+  [
+    "01",
+    "Write public terms",
+    "The creator defines up to ten weighted demands, measurable X thresholds, acceptance and delivery deadlines, then locks native test GEN.",
+  ],
+  [
+    "02",
+    "Share the private invitation",
+    "The URL carries a one-time secret in its fragment. Only its SHA-256 commitment reaches the chain; the first matching wallet becomes the KOL.",
+  ],
+  [
+    "03",
+    "Accept or counter",
+    "The KOL accepts each demand or proposes a strictly later deadline. Any counteroffer needs creator approval before the oath activates.",
+  ],
+  [
+    "04",
+    "Submit canonical proof",
+    "The KOL submits an exact public X status URL. GenLayer validators independently render it and compare authorship, status ID, content, time, and enabled metrics.",
+  ],
+  [
+    "05",
+    "Settle each milestone",
+    "A passing demand releases its allocation minus the 1% platform fee. An expired demand receives one final check before an unfee'd creator refund.",
+  ],
+  [
+    "06",
+    "Handle exceptional termination",
+    "Either party may open a public case. Past payouts stay final, the other party gets 48 hours to respond, and GenLayer rules on remaining escrow.",
+  ],
 ];
 
 const icons: Record<string, string> = {
-  "01": "◇",
-  "02": "◎",
-  "03": "⌁",
-  "04": "↗",
-  "05": "↗",
-  "06": "↗",
+  "01": "✎", // Pencil / Pen — Drafting legal/public terms
+  "02": "🔑", // Key — Private cryptographic token / SHA-256 secret invitation
+  "03": "⇄", // Bidirectional arrows — Negotiation / Countering back and forth
+  "04": "✓", // Checkmark — Submitting proof / Validation confirmation
+  "05": "⛃", // Stacked Coins — Financial settlement / Releasing token escrow allocation
+  "06": "⚠", // Warning Sign — Exceptional termination / Arbitration / Dispute handler
 };
 
 export default function HowItWorksPage() {
@@ -41,21 +65,30 @@ export default function HowItWorksPage() {
         {sections.map(([number, title, body]) => (
           <article
             key={number}
-            className="flex min-h-[300px] flex-col border-r border-border bg-background p-8 transition-colors duration-200 ease-default last:border-r-0 hover:bg-secondary max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:last:border-b-0"
+            className="group flex min-h-[300px] flex-col border-r border-border bg-background p-8 transition-colors duration-200 ease-default last:border-r-0 hover:bg-secondary max-[900px]:border-r-0 max-[900px]:border-b max-[900px]:last:border-b-0"
           >
-            <span className="font-mono text-[13px] font-medium text-muted-foreground">
+            {/* Number Indicator */}
+            <span className="font-mono text-[13px] font-medium text-muted-foreground group-hover:!text-white transition-colors duration-200">
               {number}
             </span>
+
+            {/* Icon Block */}
             <div
-              className="my-12 text-[32px] font-light text-primary max-[600px]:my-8"
+              className="my-12 text-[32px] font-light text-primary group-hover:!text-white transition-colors duration-200 max-[600px]:my-8"
               aria-hidden="true"
             >
               {icons[number]}
             </div>
-            <h3 className="mb-2.5 font-body text-base font-medium text-foreground">
+
+            {/* Title Header */}
+            <h3 className="mb-2.5 font-body text-base font-medium text-foreground group-hover:!text-white transition-colors duration-200">
               {title}
             </h3>
-            <p className="m-0 text-[15px] leading-[1.5] text-muted-foreground">{body}</p>
+
+            {/* Body Paragraph */}
+            <p className="m-0 text-[15px] leading-[1.5] text-muted-foreground group-hover:!text-white transition-colors duration-200">
+              {body}
+            </p>
           </article>
         ))}
       </section>
@@ -65,9 +98,9 @@ export default function HowItWorksPage() {
           Before testing
         </h2>
         <p className="m-0 text-muted-foreground">
-          HORKIOS currently runs its development gate on GenLayer Studionet.
-          Use a Studionet-funded wallet and remember that test GEN has no
-          monetary value.
+          HORKIOS currently runs its development gate on GenLayer Studionet. Use
+          a Studionet-funded wallet and remember that test GEN has no monetary
+          value.
         </p>
         <div className="rounded-[0_var(--radius-sm)_var(--radius-sm)_0] border border-border border-l-[3px] border-l-primary bg-primary-dim p-3 text-[14px] leading-[1.5] text-muted-foreground">
           Never share a private key, seed phrase, local environment file, or
@@ -75,7 +108,7 @@ export default function HowItWorksPage() {
           wallet address are safe diagnostic inputs.
         </div>
         <Link
-          className="mt-1 inline-flex w-fit min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-paper bg-foreground px-[22px] py-2 text-[14px] font-medium text-background transition-all duration-200 ease-default hover:border-foreground hover:bg-foreground"
+          className="mt-1 inline-flex w-fit min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-paper bg-primary px-[22px] py-2 text-[14px] font-medium transition-all duration-200 ease-default hover:border-foreground !text-white hover:bg-foreground"
           href="/create"
         >
           Create a test oath

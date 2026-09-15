@@ -71,7 +71,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <Link
-          className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
+          className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-6 py-3 text-[14px] font-medium !text-primary transition-all duration-200 hover:bg-secondary hover:!text-white border"
           href="/create"
         >
           Create new oath <span>↗</span>
@@ -89,7 +89,14 @@ export default function DashboardPage() {
             <span className="ml-1">Connected Account</span>
           </span>
           <strong className="mt-6 font-display text-[22px] font-semibold text-foreground">
-            {address ? <span className="flex items-center gap-2">{truncateAddress(address)}<CopyButton value={address} label="Copy wallet address" /></span> : "NOT CONNECTED"}
+            {address ? (
+              <span className="flex items-center gap-2">
+                {truncateAddress(address)}
+                <CopyButton value={address} label="Copy wallet address" />
+              </span>
+            ) : (
+              "NOT CONNECTED"
+            )}
           </strong>
           <span className="mt-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             <span
@@ -113,9 +120,7 @@ export default function DashboardPage() {
           },
           {
             label: "Locked Value",
-            value: address
-              ? formatGen(locked).replace(" GEN", "")
-              : "---",
+            value: address ? formatGen(locked).replace(" GEN", "") : "---",
             sub: "GEN",
           },
         ].map(({ label, value, sub }) => (
@@ -163,10 +168,7 @@ export default function DashboardPage() {
       ) : campaigns.length === 0 ? (
         <NoOath variant="empty" />
       ) : (
-        <OathTable
-          campaigns={loaded}
-          ids={idsQuery.data || []}
-        />
+        <OathTable campaigns={loaded} ids={idsQuery.data || []} />
       )}
     </div>
   );

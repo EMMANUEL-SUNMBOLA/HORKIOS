@@ -181,7 +181,7 @@ export default function InvitePage() {
           </div>
 
           <button
-            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-foreground"
+            className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-black transition-all duration-200 hover:bg-primary hover:text-white border border-primary"
             disabled={!secret}
             onClick={review}
           >

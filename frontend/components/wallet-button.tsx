@@ -110,32 +110,42 @@ export function WalletButton() {
   return (
     <div className="relative" ref={menuRef}>
       <div className="flex items-center gap-1.5">
-      <button
-        className="glass-input flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-foreground"
-        onClick={() => setOpen((value) => !value)}
-        aria-expanded={open}
-        aria-haspopup="menu"
-      >
-        <span className="h-2 w-2 rounded-full bg-green horkios-pulse" />
-        {truncateAddress(address)}
-        <svg
-          className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          viewBox="0 0 12 12"
-          fill="none"
+        <button
+          className="glass-input flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-foreground"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-haspopup="menu"
         >
-          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-      <CopyButton value={address} label="Copy wallet address" />
+          <span className="h-2 w-2 rounded-full bg-green horkios-pulse" />
+          {truncateAddress(address)}
+          <svg
+            className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            viewBox="0 0 12 12"
+            fill="none"
+          >
+            <path
+              d="M3 4.5L6 7.5L9 4.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
       {open && (
-          <div className="glass absolute right-0 top-full mt-2 min-w-[200px] p-2 shadow-[0_12px_32px_rgba(16,32,31,.12)]" role="menu">
+        <div
+          className="glass absolute right-0 top-full mt-2 min-w-[200px] p-2 shadow-[0_12px_32px_rgba(16,32,31,.12)]"
+          role="menu"
+        >
           <div className="border-b border-border/50 px-3 py-2">
             <span className="section-label text-[10px]">
               <span className="section-label-slash">/</span>
               <span className="ml-1">Connected Wallet</span>
             </span>
-            <div className="mt-1 flex items-center gap-2 font-mono text-[13px] text-foreground"><span>{truncateAddress(address)}</span><CopyButton value={address} label="Copy wallet address" /></div>
+            <div className="mt-1 flex items-center gap-2 font-mono text-[13px] text-foreground">
+              <span>{truncateAddress(address)}</span>
+            </div>
           </div>
           <button
             role="menuitem"

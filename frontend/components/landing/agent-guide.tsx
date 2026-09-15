@@ -18,7 +18,7 @@ const guideArray = [
 
 export function AgentGuide() {
   return (
-    <div className="overflow-hidden rounded-[var(--radius-md)] border border-border">
+    <div className="mt-10 overflow-hidden rounded-[var(--radius-md)] border border-border">
       {guideArray.map((step, index) => {
         // Formats index (0, 1, 2) into zero-padded strings ("01", "02", "03")
         const stepNumber = String(index + 1).padStart(2, "0");

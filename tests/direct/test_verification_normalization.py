@@ -33,6 +33,7 @@ def _valid_payload() -> dict[str, object]:
         "post_exists": True,
         "author": "@Horkios",
         "status_id": "123",
+        "text": "gm CT",
         "content_matches": True,
         "published_at_unix": 2_000_000_000,
         "observed_views": 100,
@@ -49,6 +50,8 @@ def test_valid_analysis_is_normalized() -> None:
     assert result["post_exists"] is True
     assert result["author"] == "horkios"
     assert result["status_id"] == "123"
+    assert result["text"] == "gm CT"
+    assert result["content_matches"] is True
 
 
 def test_mismatched_status_id_fails_identity_match() -> None:
@@ -60,35 +63,49 @@ def test_mismatched_status_id_fails_identity_match() -> None:
     assert result["status_id"] == ""
 
 
-def test_missing_field_fails_closed() -> None:
+def test_missing_optional_fields_use_defaults() -> None:
     payload = _valid_payload()
     del payload["author"]
+    del payload["text"]
+    del payload["content_matches"]
     result = _normalizer()._normalize_analysis(
         payload, "horkios", "https://x.com/horkios/status/123"
     )
-    assert result["post_exists"] is False
-    assert result["observed_views"] == 0
+    assert result["post_exists"] is True
+    assert result["author"] == ""
+    assert result["text"] == ""
+    assert result["content_matches"] is False
+    assert result["observed_views"] == 100
 
 
-def test_string_boolean_fails_closed() -> None:
+def test_string_post_exists_coerced() -> None:
     payload = _valid_payload()
     payload["post_exists"] = "false"
     result = _normalizer()._normalize_analysis(
         payload, "horkios", "https://x.com/horkios/status/123"
     )
-    assert result["post_exists"] is False
-    assert result["content_matches"] is False
+    assert result["post_exists"] is True
 
 
-def test_invalid_numeric_values_fail_closed() -> None:
+def test_string_numeric_values_coerced() -> None:
     normalizer = _normalizer()
-    for invalid in ("100", -1, True, 1 << 256):
+    payload = _valid_payload()
+    payload["observed_views"] = "100"
+    result = normalizer._normalize_analysis(
+        payload, "horkios", "https://x.com/horkios/status/123"
+    )
+    assert result["observed_views"] == 100
+
+
+def test_invalid_numeric_values_use_defaults() -> None:
+    normalizer = _normalizer()
+    for invalid in (-1, True, 1 << 256):
         payload = _valid_payload()
         payload["observed_views"] = invalid
         result = normalizer._normalize_analysis(
             payload, "horkios", "https://x.com/horkios/status/123"
         )
-        assert result["post_exists"] is False
+        assert result["observed_views"] == 0
 
 
 def test_non_object_payload_fails_closed() -> None:

@@ -46,6 +46,7 @@ export type Demand = {
   min_likes: bigint | number | string;
   min_reposts: bigint | number | string;
   evidence_url: string;
+  x_user_id: string;
   attempt_count: bigint | number | string;
   decision: VerificationDecision;
   settled_at: bigint | number | string;
