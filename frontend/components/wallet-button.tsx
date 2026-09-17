@@ -92,16 +92,43 @@ export function WalletButton() {
     return (
       <div className="relative" ref={menuRef}>
         <button
-          className="glass-input flex min-h-11 items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-amber"
+          className="glass-input hidden min-h-11 items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-amber sm:flex"
           onClick={handleSwitch}
           disabled={switching}
         >
           <span className="h-2 w-2 rounded-full bg-amber horkios-pulse" />
           {switching ? "Switching…" : `Switch to ${networkLabel}`}
         </button>
-        {switchError && (
-          <div className="absolute right-0 top-full mt-2 rounded-lg border border-destructive/20 bg-card px-3 py-2 text-[12px] text-destructive shadow-lg">
-            {switchError}
+        <button
+          className="glass-input flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-amber sm:hidden"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-label={switching ? "Switching network" : "Switch network"}
+          disabled={switching}
+        >
+          <span className="h-2 w-2 rounded-full bg-amber horkios-pulse" />
+          {switching ? "Switching…" : "Switch"}
+        </button>
+        {switchError && <div className="absolute right-0 top-full z-10 mt-2 hidden rounded-lg border border-destructive/20 bg-card px-3 py-2 text-[12px] text-destructive shadow-lg sm:block">{switchError}</div>}
+        {open && (
+          <div className="glass absolute right-0 top-full z-20 mt-2 w-[min(86vw,280px)] p-4 shadow-[0_12px_32px_rgba(16,32,31,.12)] sm:hidden" role="menu">
+            <div className="flex items-start gap-3">
+              <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-amber" />
+              <div>
+                <strong className="block text-[14px] font-semibold text-foreground">Wrong network</strong>
+                <p className="mt-1 text-[13px] leading-5 text-muted-foreground">HORKIOS currently requires {networkLabel}.</p>
+              </div>
+            </div>
+            <button
+              className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-[#005753]"
+              onClick={handleSwitch}
+              disabled={switching}
+              role="menuitem"
+            >
+              {switching ? "Switching…" : `Switch to ${networkLabel}`}
+            </button>
+            {switchError && <p className="mt-2 text-[12px] leading-5 text-destructive">{switchError}</p>}
           </div>
         )}
       </div>
