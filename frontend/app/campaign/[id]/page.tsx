@@ -267,20 +267,6 @@ export default function CampaignPage() {
             </p>
           </GlassCard>
 
-          {isCreator && creatorInvitation && (
-            <GlassCard className="grid gap-3 border-primary/30 bg-accent/45 p-5 sm:p-6">
-              <div>
-                <SectionLabel label="Creator access" className="mb-2" />
-                <h2 className="font-display text-[18px] font-semibold text-foreground">Copy the invite link again</h2>
-                <p className="mt-1 text-[13px] leading-5 text-muted-foreground">Keep this private link available for the KOL. It is recovered from this browser while the invitation is active.</p>
-              </div>
-              <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-                <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-foreground" title={creatorInvitation}>{truncateHash(creatorInvitation)}</span>
-                <CopyButton value={creatorInvitation} label="Copy invite link" />
-              </div>
-            </GlassCard>
-          )}
-
           {/* Demands */}
           {campaign.demands.map((demand, index) => (
             <GlassCard key={index} className="p-6">
@@ -420,6 +406,20 @@ export default function CampaignPage() {
                 )}
             </GlassCard>
           ))}
+
+          {isCreator && Number(campaign.status) === 0 && creatorInvitation && (
+            <GlassCard className="grid gap-3 border-primary/30 bg-accent/45 p-5 sm:p-6">
+              <div>
+                <SectionLabel label="Creator access" className="mb-2" />
+                <h2 className="font-display text-[18px] font-semibold text-foreground">Copy the invite link again</h2>
+                <p className="mt-1 text-[13px] leading-5 text-muted-foreground">Send this private link to the KOL again if needed. It is recovered from this browser while the invitation is awaiting review.</p>
+              </div>
+              <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
+                <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-foreground" title={creatorInvitation}>{truncateHash(creatorInvitation)}</span>
+                <CopyButton value={creatorInvitation} label="Copy invite link" />
+              </div>
+            </GlassCard>
+          )}
         </section>
 
         {/* Sidebar */}
