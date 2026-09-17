@@ -108,12 +108,6 @@ export default function InvitePage() {
             {/* Requirements */}
             <div className="flex flex-wrap gap-1.5 mb-4">
               <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
-                Views ≥ {String(demand.min_views)}
-              </span>
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
-                Likes ≥ {String(demand.min_likes)}
-              </span>
-              <span className="glass-input rounded-full px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground">
                 Due {formatDate(demand.original_deadline)}
               </span>
             </div>

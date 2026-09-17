@@ -1,5 +1,7 @@
 "use client";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 type AudienceToggleProps = {
   audience: "human" | "agent";
   onChange: (audience: "human" | "agent") => void;
@@ -20,14 +22,22 @@ export function AudienceToggle({ audience, onChange }: AudienceToggleProps) {
       >
         I&apos;m human
       </button>
-      <button
-        role="tab"
-        aria-selected={audience === "agent"}
-        className={`px-5 py-2 text-[13px] font-medium transition duration-200 ${audience === "agent" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-        onClick={() => onChange("agent")}
-      >
-        I&apos;m an agent
-      </button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <button
+              role="tab"
+              aria-selected={audience === "agent"}
+              aria-disabled
+              disabled
+              className="px-5 py-2 text-[13px] font-medium transition duration-200 text-muted-foreground opacity-50 cursor-not-allowed"
+            />
+          }
+        >
+          I&apos;m an agent
+        </TooltipTrigger>
+        <TooltipContent>Coming soon</TooltipContent>
+      </Tooltip>
     </div>
   );
 }

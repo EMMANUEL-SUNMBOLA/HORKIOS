@@ -4,9 +4,6 @@ export type DemandDraft = {
   instructions: string;
   weightBps: number;
   deadline: string;
-  minViews: number;
-  minLikes: number;
-  minReposts: number;
 };
 
 export type CampaignDraft = {

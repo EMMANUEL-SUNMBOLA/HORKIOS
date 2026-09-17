@@ -41,9 +41,6 @@ const newDemand = (weightBps = 10_000): DemandDraft => ({
   instructions: "",
   weightBps,
   deadline: tomorrow(7),
-  minViews: 0,
-  minLikes: 0,
-  minReposts: 0,
 });
 
 export default function CreatePage() {
@@ -182,9 +179,9 @@ export default function CreatePage() {
           draft.demands.map((item) => item.instructions.trim()),
           draft.demands.map((item) => item.weightBps),
           draft.demands.map((item) => unixSeconds(item.deadline)),
-          draft.demands.map((item) => item.minViews),
-          draft.demands.map((item) => item.minLikes),
-          draft.demands.map((item) => item.minReposts),
+          draft.demands.map(() => 0),
+          draft.demands.map(() => 0),
+          draft.demands.map(() => 0),
         ],
         value: escrow,
       });
@@ -457,13 +454,12 @@ export default function CreatePage() {
                         max="100"
                         step="0.01"
                         value={demand.weightBps / 100}
-                        onChange={(event) =>
-                          updateDemand(index, {
-                            weightBps: Math.round(
-                              Number(event.target.value) * 100,
-                            ),
-                          })
-                        }
+                        onChange={(event) => {
+                          const raw = Number(event.target.value);
+                          if (Number.isNaN(raw)) return;
+                          const clamped = Math.min(Math.max(Math.round(raw * 100), 1), 10_000);
+                          updateDemand(index, { weightBps: clamped });
+                        }}
                       />
                     </div>
 
@@ -482,60 +478,6 @@ export default function CreatePage() {
                       />
                     </div>
 
-                    <div className="grid gap-1.5">
-                      <label className="section-label text-[10px]">
-                        <span className="section-label-slash">/</span>
-                        <span className="ml-1">Minimum views</span>
-                      </label>
-                      <input
-                        className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]"
-                        type="number"
-                        min="0"
-                        value={demand.minViews}
-                        onChange={(event) =>
-                          updateDemand(index, {
-                            minViews: Number(event.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex lg:flex-row flex-col gap-2">
-                    <div className="grid gap-1.5">
-                      <label className="section-label text-[10px]">
-                        <span className="section-label-slash">/</span>
-                        <span className="ml-1">Minimum likes</span>
-                      </label>
-                      <input
-                        className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]"
-                        type="number"
-                        min="0"
-                        value={demand.minLikes}
-                        onChange={(event) =>
-                          updateDemand(index, {
-                            minLikes: Number(event.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <label className="section-label text-[10px]">
-                        <span className="section-label-slash">/</span>
-                        <span className="ml-1">Minimum reposts</span>
-                      </label>
-                      <input
-                        className="glass-input w-full rounded-full px-4 py-2.5 text-foreground text-[14px]"
-                        type="number"
-                        min="0"
-                        value={demand.minReposts}
-                        onChange={(event) =>
-                          updateDemand(index, {
-                            minReposts: Number(event.target.value),
-                          })
-                        }
-                      />
-                    </div>
                   </div>
                 </div>
               </GlassCard>
@@ -578,6 +520,19 @@ export default function CreatePage() {
                 <span className="text-muted-foreground">0%</span>
               </div>
               <div className="h-px bg-border/50 my-1" />
+              <div className="flex justify-between gap-4 py-2 text-[14px]">
+                <span className={weightTotal === 10_000 ? "text-muted-foreground" : "text-destructive"}>
+                  Weight total
+                </span>
+                <strong className={`font-mono font-medium ${weightTotal === 10_000 ? "text-foreground" : "text-destructive"}`}>
+                  {(weightTotal / 100).toFixed(weightTotal % 100 === 0 ? 0 : 2)}%
+                </strong>
+              </div>
+              {weightTotal !== 10_000 && (
+                <p className="text-[12px] text-destructive">
+                  Weights must total 100%
+                </p>
+              )}
               {draft.demands.map((demand, index) => (
                 <div
                   className="flex justify-between gap-4 py-2 text-[14px] text-muted-foreground"
@@ -604,8 +559,9 @@ export default function CreatePage() {
               <p className="mt-4 text-[13px] text-destructive">{error}</p>
             )}
             <button
-              className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-primary transition-all duration-200 hover:bg-primary border hover:text-white"
+              className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-primary transition-all duration-200 hover:bg-primary border hover:text-white disabled:opacity-40 disabled:pointer-events-none"
               onClick={submit}
+              disabled={weightTotal !== 10_000}
             >
               {address ? "Fund and create oath" : "Connect wallet"}
             </button>

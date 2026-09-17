@@ -36,7 +36,7 @@ Built with Next.js 16, React 19, TypeScript, genlayer-js, and a 761-line GenLaye
 
 05 Demo video
 -------------
-URL: https://www.youtube.com/watch?v=[REPLACE_WITH_YOUR_VIDEO_ID]
+URL: https://x.com/Caveman0X/status/2100269850564194310
 
 Demo flow:
 1. Creator connects wallet on horkios.vercel.app
@@ -51,37 +51,29 @@ Demo flow:
 
 06 How-to steps
 ---------------
-Step 1: Connect a MetaMask or compatible wallet funded with test GEN on Studionet (chain 61999).
-Step 2: Click "Create oath" in the navigation bar.
-Step 3: Fill in the oath form — title, description, X/Twitter handle, acceptance deadline, and at least one demand with weight, deadline, and optional engagement thresholds.
-Step 4: Enter the escrow amount in GEN and click "Create oath" to submit the transaction.
-Step 5: Copy the generated invite link and share it with the KOL.
-Step 6: As the KOL, open the invite link, review each demand, accept or propose new deadlines, and sign.
-Step 7: After activation, submit a canonical X/Twitter post URL as evidence for each demand.
-Step 8: Click "Ask GenLayer to verify" and wait for validator consensus.
-Step 9: If all demands pass, the oath settles automatically — KOL is paid, creator is refunded remaining escrow.
-Step 10: View full accounting on the campaign page — locked, paid, fee, and refunded amounts.
+Step 1: Connect a wallet on horkios.vercel.app
+Step 2: Click "Create oath"
+Step 3: Write the oath title, the X handle you expect the post from, and the amount of GEN to lock in escrow
+Step 4: Write your demands — what you want the post to mention, who to tag, etc. Add as many demands as you like and assign GEN to each. Click "Fund and create oath"
+Step 5: Copy the invitation link and send it to the KOL
+Step 6: KOL opens the link, reviews demands, connects wallet, and accepts
+Step 7: KOL makes the X/Twitter post, submits it on the dapp, clicks "Ask GenLayer to verify"
+Step 8: If the post satisfies the demand, escrow pays the KOL wallet automatically
 
 07 Review verification outcome
 -------------------------------
 After following the how-to steps above, the steward should see:
-- A new campaign created on Studionet with status "OATH ACTIVE" then "OATH SETTLED"
-- Demand status changed from "PROPOSED" to "PASSED"
-- Escrow accounting showing: Original 10 GEN, Locked 0 GEN, Gross paid 10 GEN, KOL received 9.9 GEN, Platform fee 0.1 GEN, Refunded 0 GEN
-- The contract at 0xE1f66188e9200258A60d9AD7782A858f2E7d36eb on Studionet (chain 61999)
-- get_config() returns fee_recipient, release_id "horkios-escrow-2026-08-storage-v2", fee_bps 100, max_demands 10, termination_window 172800
+- KOL will receive the GEN in the escrow
+- Studio Next deployment verified on chain 61997
 
 08 Contract deployment (Studio Next — chain 61997)
 ---------------------------------------------------
-[REPLACE_WITH_STUDIO_NEXT_DEPLOYMENT_ADDRESS]
-https://explorer-studio-dev.genlayer.com/address/0x[REPLACE]
-
-NOTE: Deploy the latest contracts/HorkiosEscrow.py on Studio Next (chain 61997) before submitting.
-The Studionet (chain 61999) deployment at 0xE1f66188e9200258A60d9AD7782A858f2E7d36eb is
-for testing. The portal requires a Studio Next deployment link.
+0x3263616508e027D16bA972adA438D8cf50bfAd9d
+https://explorer-studio-dev.genlayer.com/address/0x3263616508e027D16bA972adA438D8cf50bfAd9d
 
 09 Project links
 -----------------
-Website: https://horkios.vercel.app
+Website: https://horkios.vercel.app/
 GitHub: https://github.com/EMMANUEL-SUNMBOLA/HORKIOS
+Contract (Studio Next): https://explorer-studio-dev.genlayer.com/address/0x3263616508e027D16bA972adA438D8cf50bfAd9d
 Contract (Studionet): https://explorer-studionet.genlayer.com/address/0xE1f66188e9200258A60d9AD7782A858f2E7d36eb

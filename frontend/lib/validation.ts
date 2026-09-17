@@ -6,9 +6,6 @@ export const demandDraftSchema = z.object({
   instructions: z.string().trim().min(1).max(1000),
   weightBps: z.number().int().min(1).max(10_000),
   deadline: futureDate,
-  minViews: z.number().int().nonnegative(),
-  minLikes: z.number().int().nonnegative(),
-  minReposts: z.number().int().nonnegative(),
 });
 
 export const campaignDraftSchema = z.object({

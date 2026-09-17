@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Roboto, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/layout/header";
 import { MobileHeader } from "@/components/layout/mobile-header";
 import { Footer } from "@/components/layout/footer";
@@ -40,12 +41,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={cn(aeonikFallback.variable, bodyFallback.variable, inputFallback.variable)}>
       <body>
         <Providers>
+          <TooltipProvider>
           <div className="flex min-h-screen flex-col">
             <Header />
             <MobileHeader />
             <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 pt-24 pb-24 sm:px-8 sm:pt-32 md:pt-36">{children}</main>
             <Footer />
           </div>
+          </TooltipProvider>
         </Providers>
       </body>
     </html>
