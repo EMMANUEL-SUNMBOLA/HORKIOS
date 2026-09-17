@@ -18,7 +18,6 @@ import {
   writeClient,
 } from "@/lib/contract";
 import {
-  clearPendingCreate,
   loadPendingCreate,
   savePendingCreate,
   type PendingCreate,
@@ -58,6 +57,8 @@ export default function CreatePage() {
   const [hash, setHash] = useState<string>();
   const [error, setError] = useState<string>();
   const [invitation, setInvitation] = useState<string>();
+  const [invitationCopied, setInvitationCopied] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
   const [monitoringDelayed, setMonitoringDelayed] = useState(false);
   const [modalActive, setModalActive] = useState(false);
   const recovering = useRef(false);
@@ -97,6 +98,7 @@ export default function CreatePage() {
         onMonitoringDelay: setMonitoringDelayed,
       });
       setStage("finalized");
+      setInviteLoading(true);
       const campaignId = await findCampaignByInviteHash(
         pending.creator,
         pending.inviteHash,
@@ -104,7 +106,9 @@ export default function CreatePage() {
       setInvitation(
         `${window.location.origin}/invite/${campaignId}#invite=${pending.secret}`,
       );
+      setInviteLoading(false);
     } catch (caught) {
+      setInviteLoading(false);
       setStage(
         caught instanceof UndeterminedTransactionError
           ? "undetermined"
@@ -133,6 +137,8 @@ export default function CreatePage() {
   async function submit() {
     setError(undefined);
     setInvitation(undefined);
+    setInvitationCopied(false);
+    setInviteLoading(false);
     setStage("idle");
     setModalActive(false);
     const parsed = campaignDraftSchema.safeParse(draft);
@@ -194,11 +200,14 @@ export default function CreatePage() {
         onMonitoringDelay: setMonitoringDelayed,
       });
       setStage("finalized");
+      setInviteLoading(true);
       const campaignId = await findCampaignByInviteHash(address, commitment);
       setInvitation(
         `${window.location.origin}/invite/${campaignId}#invite=${secret}`,
       );
+      setInviteLoading(false);
     } catch (caught) {
+      setInviteLoading(false);
       setStage(
         caught instanceof UndeterminedTransactionError
           ? "undetermined"
@@ -218,6 +227,7 @@ export default function CreatePage() {
     setStage("idle");
     setHash(undefined);
     setMonitoringDelayed(false);
+    setInviteLoading(false);
   }
 
   useEffect(() => {
@@ -240,33 +250,31 @@ export default function CreatePage() {
             }
           }}
         />
-        {invitation && (
-          <div className="glass grid gap-4 rounded-2xl p-6">
+        {stage === "finalized" && inviteLoading && (
+          <div className="glass flex items-center gap-3 rounded-2xl p-5 text-[13px] text-muted-foreground" aria-live="polite">
+            <span className="horkios-pulse inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+            <span>Preparing your private invite link…</span>
+          </div>
+        )}
+        {invitation && !inviteLoading && (
+          <div className="glass grid gap-4 rounded-2xl p-5 sm:p-6">
             <div className="text-green font-medium">Your oath is funded.</div>
-            <input
-              className="glass-input w-full rounded-full px-4 py-2.5 text-foreground font-mono text-[13px] tabular-nums"
-              readOnly
-              value={invitation}
-            />
-            <div className="flex gap-2">
+            <div className="glass-input w-full break-all rounded-lg px-4 py-3 font-mono text-[12px] leading-5 text-foreground" title={invitation}>
+              {invitation}
+            </div>
+            <div className="grid gap-2 sm:flex">
               <button
-                className="glass-input rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#005753] sm:flex-1"
                 onClick={async () => {
                   await navigator.clipboard.writeText(invitation);
-                  if (address && contractAddress) {
-                    const pending = loadPendingCreate(
-                      networkName,
-                      contractAddress,
-                      address,
-                    );
-                    if (pending) clearPendingCreate(pending);
-                  }
+                  setInvitationCopied(true);
+                  window.setTimeout(() => setInvitationCopied(false), 1600);
                 }}
               >
-                Copy invitation
+                {invitationCopied ? "Invitation copied" : "Copy invite link"}
               </button>
               <Link
-                className="glass-input inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
+                className="glass-input inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-accent sm:flex-1"
                 href={invitation}
               >
                 Open invitation
@@ -281,7 +289,7 @@ export default function CreatePage() {
       </>
     ));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showModal/hideModal are stable from context
-  }, [modalActive, stage, hash, monitoringDelayed, invitation]);
+  }, [modalActive, stage, hash, monitoringDelayed, invitation, inviteLoading, invitationCopied]);
 
   return (
     <>
@@ -586,30 +594,20 @@ export default function CreatePage() {
           )}
 
           {!modalActive && invitation && (
-            <GlassCard className="p-6">
-              <div className="text-green font-medium mb-4">
-                Your oath is funded.
+            <GlassCard className="grid gap-4 p-5 sm:p-6">
+              <div className="text-green font-medium">Your oath is funded.</div>
+              <div className="glass-input w-full break-all rounded-lg px-4 py-3 font-mono text-[12px] leading-5 text-foreground" title={invitation}>
+                {invitation}
               </div>
-              <input
-                className="glass-input w-full rounded-full px-4 py-2.5 text-foreground font-mono text-[13px] tabular-nums mb-4"
-                readOnly
-                value={invitation}
-              />
               <button
-                className="glass-input inline-flex min-h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#005753]"
                 onClick={async () => {
                   await navigator.clipboard.writeText(invitation);
-                  if (address && contractAddress) {
-                    const pending = loadPendingCreate(
-                      networkName,
-                      contractAddress,
-                      address,
-                    );
-                    if (pending) clearPendingCreate(pending);
-                  }
+                  setInvitationCopied(true);
+                  window.setTimeout(() => setInvitationCopied(false), 1600);
                 }}
               >
-                Copy invitation
+                {invitationCopied ? "Invitation copied" : "Copy invite link"}
               </button>
               <p className="mt-4 text-muted-foreground text-[13px] leading-relaxed">
                 Anyone with this secret can bind the KOL wallet. HORKIOS cannot

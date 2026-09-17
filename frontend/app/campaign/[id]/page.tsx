@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CampaignStatus, DemandStatus } from "@/components/ui/status-badge";
 import { TxProgress } from "@/components/ui/tx-progress";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -11,8 +11,10 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { SectionLabel } from "@/components/ui/section-label";
 import { useModal } from "@/components/modal";
 import { canonicalXUrl } from "@/lib/validation";
-import { formatDate, formatGen, truncateAddress } from "@/lib/format";
+import { formatDate, formatGen, truncateAddress, truncateHash } from "@/lib/format";
 import {
+  contractAddress,
+  networkName,
   readCampaign,
   requireContract,
   TransactionStatusUnavailableError,
@@ -20,6 +22,7 @@ import {
   waitForOutcome,
   writeClient,
 } from "@/lib/contract";
+import { loadPendingCreate } from "@/lib/pending-create";
 import { useWallet } from "@/lib/wallet";
 import type { TxStage } from "@/lib/types";
 import type { CalldataEncodable, Hash } from "genlayer-js/types";
@@ -76,6 +79,13 @@ export default function CampaignPage() {
     enabled: Number.isInteger(id) && id >= 0,
   });
   const campaign = campaignQuery.data;
+  const creatorInvitation = useMemo(() => {
+    if (!campaign || !address || !contractAddress || address.toLowerCase() !== campaign.creator.toLowerCase()) return undefined;
+    const pending = loadPendingCreate(networkName, contractAddress, address);
+    return pending && pending.inviteHash.toLowerCase() === campaign.invite_hash.toLowerCase() && typeof window !== "undefined"
+      ? `${window.location.origin}/invite/${id}#invite=${pending.secret}`
+      : undefined;
+  }, [address, campaign, id]);
 
   useEffect(() => {
     const timer = window.setInterval(
@@ -256,6 +266,20 @@ export default function CampaignPage() {
               {campaign.description || "No additional campaign description."}
             </p>
           </GlassCard>
+
+          {isCreator && creatorInvitation && (
+            <GlassCard className="grid gap-3 border-primary/30 bg-accent/45 p-5 sm:p-6">
+              <div>
+                <SectionLabel label="Creator access" className="mb-2" />
+                <h2 className="font-display text-[18px] font-semibold text-foreground">Copy the invite link again</h2>
+                <p className="mt-1 text-[13px] leading-5 text-muted-foreground">Keep this private link available for the KOL. It is recovered from this browser while the invitation is active.</p>
+              </div>
+              <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
+                <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-foreground" title={creatorInvitation}>{truncateHash(creatorInvitation)}</span>
+                <CopyButton value={creatorInvitation} label="Copy invite link" />
+              </div>
+            </GlassCard>
+          )}
 
           {/* Demands */}
           {campaign.demands.map((demand, index) => (
