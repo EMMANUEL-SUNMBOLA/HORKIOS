@@ -70,10 +70,12 @@
 }
 
 * { box-sizing: border-box; scroll-behavior: smooth; }
-html { background: var(--background); color: var(--foreground); }
+html { background: var(--background); color: var(--foreground); text-size-adjust: 100%; }
 body {
   margin: 0;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--background);
   font-family: var(--font-aeonik);
   font-size: 16px;
@@ -94,40 +96,13 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   html { @apply font-sans; }
 }
 
-/* Horkios primitives */
-.glass {
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--card);
-  box-shadow: none;
-}
-.glass-nav {
-  border: 1px solid rgba(190, 201, 199, .82);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .86);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
+.glass { border: 1px solid var(--border); border-radius: 20px; background: var(--card); box-shadow: none; }
+.glass-nav { border: 1px solid rgba(190, 201, 199, .82); border-radius: 999px; background: rgba(255, 255, 255, .86); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .glass-inner { border: 1px solid var(--border); border-radius: 16px; background: var(--surface-subtle); }
-.glass-input {
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--card);
-  transition: border-color 220ms cubic-bezier(.2,0,0,1), background 220ms cubic-bezier(.2,0,0,1), transform 140ms ease;
-}
+.glass-input { border: 1px solid var(--border); border-radius: 999px; background: var(--card); transition: border-color 220ms cubic-bezier(.2,0,0,1), background 220ms cubic-bezier(.2,0,0,1), transform 140ms ease; }
 .glass-input:hover { border-color: var(--primary); background: var(--surface-subtle); }
 .glass-input:focus-visible { border-color: var(--ring); box-shadow: 0 0 0 3px rgba(0, 131, 125, .18); }
-.section-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-input);
-  font-size: 11px;
-  line-height: 1.35;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--primary);
-}
+.section-label { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-input); font-size: 11px; line-height: 1.35; letter-spacing: .14em; text-transform: uppercase; color: var(--primary); }
 .section-label-slash { color: var(--border-strong, #879592); }
 .hero-gradient { background: radial-gradient(circle at 50% 20%, rgba(216, 242, 239, .72), transparent 42%), linear-gradient(180deg, #fff 0%, var(--background) 68%); }
 .cta-glow { background: radial-gradient(50% 80% at 70% 50%, rgba(0, 131, 125, .18), transparent 70%); }
@@ -149,18 +124,10 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
 }
 
-/* Rectangular fields are easier to scan than pill-shaped inputs. Pills remain reserved for compact status and identity controls. */
-input.glass-input,
-textarea.glass-input,
-select.glass-input {
-  border-radius: 10px;
-}
-
-/* Primary surfaces always use white content for reliable contrast. */
-.bg-primary {
-  color: #ffffff;
-}
-
-
-/* Action buttons use a soft rectangle; pills stay available for tags, toggles, and compact identity controls. */
+input.glass-input, textarea.glass-input, select.glass-input { border-radius: 10px; }
+.bg-primary { color: #ffffff; }
 button.rounded-full { border-radius: 8px; }
+
+@media (max-width: 600px) {
+  input.glass-input, textarea.glass-input, select.glass-input { font-size: 16px; }
+}

@@ -79,7 +79,7 @@ export function WalletButton() {
   if (!address)
     return (
       <button
-        className="glass-input rounded-full px-4 py-2 text-[13px] font-medium text-foreground"
+        className="glass-input min-h-11 rounded-lg px-4 py-2 text-[13px] font-medium text-foreground"
         onClick={handleConnect}
         disabled={connecting}
         title={error}
@@ -92,7 +92,7 @@ export function WalletButton() {
     return (
       <div className="relative" ref={menuRef}>
         <button
-          className="glass-input flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-amber"
+          className="glass-input flex min-h-11 items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-amber"
           onClick={handleSwitch}
           disabled={switching}
         >
@@ -111,7 +111,7 @@ export function WalletButton() {
     <div className="relative" ref={menuRef}>
       <div className="flex items-center gap-1.5">
         <button
-          className="glass-input flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-foreground"
+        className="glass-input flex min-h-11 items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium text-foreground"
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-haspopup="menu"
@@ -145,6 +145,7 @@ export function WalletButton() {
             </span>
             <div className="mt-1 flex items-center gap-2 font-mono text-[13px] text-foreground">
               <span>{truncateAddress(address)}</span>
+              <CopyButton value={address} label="Copy wallet address" />
             </div>
           </div>
           <button
