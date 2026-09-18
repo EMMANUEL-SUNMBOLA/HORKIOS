@@ -2,27 +2,29 @@
 
 > Programmable oaths. Verifiable work. Trustless settlement.
 
-HORKIOS is a Web3 escrow SaaS built around GenLayer Intelligent Contracts. Its name comes from **Zeus Horkios**, the aspect of Zeus associated with guarding oaths and punishing broken promises.
+**Live contract (Studionet):** [`0x3263616508e027D16bA972adA438D8cf50bfAd9d`](https://explorer-studio.genlayer.com/address/0x3263616508e027D16bA972adA438D8cf50bfAd9d)
 
-HORKIOS turns a working agreement into a public, wallet-signed oath. A campaign creator defines what must be delivered, funds the agreement, and shares a private invitation link. The recipient reviews every demand, signs the terms with their wallet, submits public evidence, and receives payment as GenLayer verifies each milestone.
+## The problem
 
-The project is currently a **working Studionet MVP**. The contract, application, deployment
-workflow, and lifecycle tests are implemented; real-X launch-gate testing and the final
-Bradbury promotion remain in progress.
+A developer hires a KOL to promote their project with a post. Now both sides have a trust problem.
 
-## Why HORKIOS?
+The KOL worries: "If I make the post, will the dev actually pay me?" The dev worries: "If I pay first, will the KOL even make the post — or will they just take the money?" And it gets worse. Even if the post happens, did the KOL actually follow the brief? Did they mention what they were told to mention? Did they post on time? Did the engagement meet the agreed numbers?
 
-Traditional escrow can hold money, but it usually cannot determine whether a natural-language promise was fulfilled. A centralized marketplace can make that decision, but both parties must trust the marketplace.
+Today the only solutions are escrow platforms that still require a trusted middleman to decide whether the work was done, or reputation systems that only work if you already know the other party.
 
-GenLayer Intelligent Contracts can read public web evidence, interpret written requirements, and reach validator consensus on outcomes. HORKIOS uses that capability to connect an independently verifiable decision directly to an on-chain payment.
+## The solution
 
-The initial product focuses on KOL campaigns because they provide a clear and repeatable proof case:
+HORKIOS removes the trust problem entirely.
 
-- The agreement is understandable in plain language.
-- Evidence is available through public post URLs.
-- Authorship, content, timestamps, views, likes, and reposts can be evaluated.
-- Work can be divided into weighted, independently payable milestones.
-- The escrow has a real on-chain consequence when validators reach a decision.
+A creator funds an escrow in GEN and defines exactly what must be delivered — what the post should say, what metrics it should hit, and when it must go live. The KOL reviews every demand and signs the terms with their wallet. Once the work is submitted, GenLayer validators independently fetch the public post, read the evidence, and reach consensus on whether the demands were met. If they pass, the KOL gets paid automatically. If they fail, the creator gets a refund. No middleman. No manual judgment. No one can move the funds unilaterally.
+
+HORKIOS is named after **Zeus Horkios**, the aspect of Zeus associated with guarding oaths and punishing broken promises. Every campaign is a public, wallet-signed oath — and the contract is the enforcer.
+
+## Beyond humans
+
+This same problem exists in the agentic economy. AI agents will hire other AI agents to create content, run campaigns, perform tasks, and deliver results. Agents cannot rely on reputation, social trust, or legal contracts. They need programmable escrow with automated verification — pay only when the work is provably done. HORKIOS is built for that future: trustless agreements, evidence-based settlement, and on-chain enforcement that works whether the parties are human, autonomous, or both.
+
+The project is currently a **working Studionet MVP**. The contract, application, deployment workflow, and lifecycle tests are implemented; real-X launch-gate testing and the final Bradbury promotion remain in progress.
 
 ## MVP
 
