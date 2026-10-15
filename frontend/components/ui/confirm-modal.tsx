@@ -22,8 +22,8 @@ export function ConfirmModal({
   const { hideModal } = useModal();
 
   function handleConfirm() {
-    hideModal();
     onConfirm();
+    hideModal();
   }
 
   return (

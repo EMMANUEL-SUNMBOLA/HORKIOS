@@ -1,4 +1,5 @@
-# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
+# v0.3.0
+# { "Depends": "py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng" }
 """Launch-gate spike for repeated real-X validator retrieval tests.
 
 Uses gl.eq_principle.prompt_non_comparative for consensus (same pattern as
@@ -10,8 +11,9 @@ GenLayer's argumentation engine resolve disagreement.
 
 import json
 from urllib.parse import urlparse
+import genlayer as gl
 from genlayer import *
-from genlayer.gl.nondet import NondetException
+from genlayer.nondet import NondetException
 
 
 def _extract_json(value):
@@ -24,7 +26,10 @@ def _extract_json(value):
     if text.startswith("```"):
         end = text.find("```", 3)
         if end > 3:
-            text = text[3:end].lstrip("json\n").lstrip("JSON\n")
+            body = text[3:end].strip()
+            if body[:4].lower() == "json":
+                body = body[4:].strip()
+            text = body
     start = text.find("{")
     if start < 0:
         return None
@@ -42,7 +47,7 @@ def _extract_json(value):
     return None
 
 
-class XVerificationSpike(gl.Contract):
+class XVerificationSpike(gl.contract.Contract):
     last_result: str
 
     def __init__(self):
@@ -91,7 +96,7 @@ class XVerificationSpike(gl.Contract):
     @gl.public.write
     def inspect(self, url: str) -> None:
         if not url.startswith("https://x.com/"):
-            raise gl.UserError("CANONICAL_X_URL_REQUIRED")
+            raise gl.vm.UserError("CANONICAL_X_URL_REQUIRED")
 
         def classify() -> str:
             try:

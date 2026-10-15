@@ -118,21 +118,18 @@ export default function CampaignPage() {
 
   function confirmAction(functionName: string): Promise<boolean> {
     return new Promise((resolve) => {
-      showModal(() => (
-        <ConfirmModal
-          title={confirmTitles[functionName] || "Confirm action"}
-          message={confirmations[functionName]}
-          confirmLabel={confirmLabels[functionName] || "Confirm"}
-          variant={dangerousActions.has(functionName) ? "danger" : "default"}
-          onConfirm={() => resolve(true)}
-        />
-      ));
-      const checkResolved = setInterval(() => {
-        if (!document.querySelector(".modal-backdrop")) {
-          clearInterval(checkResolved);
-          resolve(false);
-        }
-      }, 100);
+      showModal(
+        () => (
+          <ConfirmModal
+            title={confirmTitles[functionName] || "Confirm action"}
+            message={confirmations[functionName]}
+            confirmLabel={confirmLabels[functionName] || "Confirm"}
+            variant={dangerousActions.has(functionName) ? "danger" : "default"}
+            onConfirm={() => resolve(true)}
+          />
+        ),
+        () => resolve(false),
+      );
     });
   }
 

@@ -115,6 +115,37 @@ def test_non_object_payload_fails_closed() -> None:
     assert result["post_exists"] is False
 
 
+def test_thread_length_defaults_to_one_when_absent() -> None:
+    payload = _valid_payload()
+    assert "thread_length" not in payload
+    result = _normalizer()._normalize_analysis(
+        payload, "horkios", "https://x.com/horkios/status/123"
+    )
+    assert result["thread_length"] == 1
+
+
+def test_thread_length_accepts_multi_tweet_thread() -> None:
+    payload = _valid_payload()
+    payload["thread_length"] = 4
+    payload["text"] = "root\n---\nmiddle\n---\nclosing"
+    result = _normalizer()._normalize_analysis(
+        payload, "horkios", "https://x.com/horkios/status/123"
+    )
+    assert result["thread_length"] == 4
+    assert result["text"] == "root\n---\nmiddle\n---\nclosing"
+
+
+def test_invalid_thread_length_falls_back_to_one() -> None:
+    normalizer = _normalizer()
+    for invalid in (0, -3, True, "many"):
+        payload = _valid_payload()
+        payload["thread_length"] = invalid
+        result = normalizer._normalize_analysis(
+            payload, "horkios", "https://x.com/horkios/status/123"
+        )
+        assert result["thread_length"] == 1
+
+
 def test_production_pass_condition_requires_status_id_match() -> None:
     source = Path("contracts/HorkiosEscrow.py").read_text()
     tree = ast.parse(source)

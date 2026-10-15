@@ -1,5 +1,6 @@
 export const HOSTED_RPC_UPSTREAMS = {
   studionet: "https://studio.genlayer.com/api",
+  studioDevnet: "https://studio-dev.genlayer.com/api",
   testnetBradbury: "https://rpc-bradbury.genlayer.com",
 } as const;
 

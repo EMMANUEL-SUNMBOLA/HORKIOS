@@ -3,20 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWallet } from "@/lib/wallet";
-import { truncateAddress } from "@/lib/format";
+import { formatGen, truncateAddress } from "@/lib/format";
 import { networkName } from "@/lib/contract";
+import { faucetFor } from "@/lib/faucet";
 import { useModal } from "@/components/modal";
 import { WalletConnectModal } from "@/components/wallet-connect-modal";
+import { useNativeBalance } from "@/components/wallet-balance";
 import { CopyButton } from "@/components/ui/copy-button";
 
 const networkLabel =
   networkName === "testnetBradbury"
     ? "Bradbury"
-    : networkName === "studionet"
-      ? "Studionet"
-      : networkName === "localnet"
-        ? "Localnet"
-        : networkName;
+    : networkName === "studioDevnet"
+      ? "Studio Next"
+      : networkName === "studionet"
+        ? "Studionet"
+        : networkName === "localnet"
+          ? "Localnet"
+          : networkName;
 
 export function WalletButton() {
   const {
@@ -34,6 +38,8 @@ export function WalletButton() {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { balance, loading: balanceLoading, refresh: refreshBalance } = useNativeBalance(address);
+  const faucet = faucetFor();
 
   useEffect(() => {
     if (!open) return;
@@ -174,7 +180,35 @@ export function WalletButton() {
               <span>{truncateAddress(address)}</span>
               <CopyButton value={address} label="Copy wallet address" />
             </div>
+            <div className="mt-2 flex items-center justify-between gap-2 text-[13px]">
+              <span className="text-muted-foreground">Balance</span>
+              <span className="flex items-center gap-1.5 font-mono text-foreground">
+                {balance === undefined ? (balanceLoading ? "…" : "—") : formatGen(balance)}
+                <button
+                  type="button"
+                  className="rounded-md px-1 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                  onClick={() => void refreshBalance()}
+                  disabled={balanceLoading}
+                  aria-label="Refresh balance"
+                  title="Refresh balance"
+                >
+                  ↻
+                </button>
+              </span>
+            </div>
           </div>
+          {faucet && (
+            <a
+              role="menuitem"
+              href={faucet.url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <span>Get test GEN</span>
+              <span className="text-muted-foreground">↗</span>
+            </a>
+          )}
           <button
             role="menuitem"
             className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"

@@ -20,6 +20,7 @@ const validBody = JSON.stringify({ jsonrpc: "2.0", id: 7, method: "gen_call", pa
 describe("hosted RPC routing", () => {
   it("uses fixed official upstreams and rejects arbitrary networks", () => {
     expect(hostedRpcUpstream("studionet")).toBe("https://studio.genlayer.com/api");
+    expect(hostedRpcUpstream("studioDevnet")).toBe("https://studio-dev.genlayer.com/api");
     expect(hostedRpcUpstream("testnetBradbury")).toBe("https://rpc-bradbury.genlayer.com");
     expect(hostedRpcUpstream("localnet")).toBeNull();
     expect(hostedRpcUpstream("https://attacker.test")).toBeNull();

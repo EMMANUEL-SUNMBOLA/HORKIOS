@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ExecutionResult, TransactionStatus } from "genlayer-js/types";
-import { expectedReleaseId, isTransientRpcError, receiptFailure, validateContractConfig } from "./contract";
+import { expectedReleaseId, isTransientRpcError, receiptFailure, receiptStatus, validateContractConfig } from "./contract";
 import { chain } from "./contract";
 import { studionet } from "genlayer-js/chains";
 
@@ -59,6 +59,35 @@ describe("transaction receipt outcomes", () => {
     expect(receiptFailure({
       statusName: TransactionStatus.FINALIZED,
       txExecutionResultName: ExecutionResult.FINISHED_WITH_ERROR,
+    })).toBe("execution");
+  });
+});
+
+describe("consensus v0.6 receipt shapes", () => {
+  it("resolves numeric, named, and snake_case statuses", () => {
+    expect(receiptStatus({ status: 7 })).toBe(TransactionStatus.FINALIZED);
+    expect(receiptStatus({ status: TransactionStatus.ACCEPTED })).toBe(TransactionStatus.ACCEPTED);
+    expect(receiptStatus({ statusName: TransactionStatus.UNDETERMINED })).toBe(TransactionStatus.UNDETERMINED);
+    expect(receiptStatus({ status_name: TransactionStatus.FINALIZED })).toBe(TransactionStatus.FINALIZED);
+    expect(receiptStatus({})).toBeUndefined();
+  });
+
+  it("classifies a numeric v0.6 undetermined status", () => {
+    expect(receiptFailure({ status: 6 })).toBe("undetermined");
+  });
+
+  it("reads v0.6 leader receipt errors from the error field", () => {
+    expect(receiptFailure({
+      statusName: TransactionStatus.FINALIZED,
+      consensus_data: { leader_receipt: [{ mode: "leader", execution_result: "SUCCESS", error: null }] },
+    })).toBeNull();
+    expect(receiptFailure({
+      statusName: TransactionStatus.FINALIZED,
+      consensus_data: { leader_receipt: [{ mode: "leader", execution_result: "FINISHED_WITH_ERROR" }] },
+    })).toBe("execution");
+    expect(receiptFailure({
+      statusName: TransactionStatus.FINALIZED,
+      consensus_data: { leader_receipt: [{ mode: "leader", execution_result: "SUCCESS", error: "TypeError: boom" }] },
     })).toBe("execution");
   });
 });

@@ -1,4 +1,5 @@
-# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
+# v0.3.0
+# { "Depends": "py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng" }
 """HORKIOS native-GEN escrow for public X campaign oaths."""
 
 from dataclasses import dataclass
@@ -9,8 +10,9 @@ import re
 import typing
 from urllib.parse import urlparse
 
+import genlayer as gl
 from genlayer import *
-from genlayer.gl.nondet import NondetException
+from genlayer.nondet import NondetException
 
 
 OFFERED = 0
@@ -42,7 +44,7 @@ RULING_UNSUPPORTED = 3
 
 BPS_TOTAL = 10_000
 FEE_BPS = 100
-RELEASE_ID = "horkios-escrow-2026-08-storage-v2"
+RELEASE_ID = "horkios-escrow-2026-10-studio-next-v3"
 MIN_DEMANDS = 1
 MAX_DEMANDS = 10
 MAX_TITLE = 120
@@ -56,7 +58,7 @@ ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 FEE_RECIPIENT = "0x23a3bD9d047052318Fd51ff6ade53002DEF9F2fA"
 
 
-@allow_storage
+@gl.storage.allow
 @dataclass
 class VerificationDecision:
     passed: bool
@@ -73,7 +75,7 @@ class VerificationDecision:
     checked_at: u64
 
 
-@allow_storage
+@gl.storage.allow
 @dataclass
 class Demand:
     instructions: str
@@ -94,7 +96,7 @@ class Demand:
     settled_at: u64
 
 
-@allow_storage
+@gl.storage.allow
 @dataclass
 class TerminationCase:
     requester: Address
@@ -110,7 +112,7 @@ class TerminationCase:
     reason: str
 
 
-@allow_storage
+@gl.storage.allow
 @dataclass
 class Campaign:
     creator: Address
@@ -130,7 +132,7 @@ class Campaign:
     fees_paid: u256
     refunded: u256
     passed_count: u8
-    demands: DynArray[Demand]
+    demands: gl.storage.DynArray[Demand]
     termination: TerminationCase
 
 
@@ -149,7 +151,10 @@ def _extract_json(value: typing.Any) -> typing.Optional[dict]:
     if text.startswith("```"):
         end = text.find("```", 3)
         if end > 3:
-            text = text[3:end].lstrip("json\n").lstrip("JSON\n")
+            body = text[3:end].strip()
+            if body[:4].lower() == "json":
+                body = body[4:].strip()
+            text = body
     # find first { ... } block
     start = text.find("{")
     if start < 0:
@@ -182,13 +187,23 @@ def _empty_termination() -> TerminationCase:
     )
 
 
-class HorkiosEscrow(gl.Contract):
+def _send_native(to: Address, value: int) -> None:
+    """Move native GEN to an externally-owned account.
+
+    Use EVM external message interface to deliver value to an EOA.
+    """
+    if value <= 0:
+        return
+    gl.evm.Account(to).emit_call(u256(value), b"")
+
+
+class HorkiosEscrow(gl.contract.Contract):
     fee_recipient: Address
     termination_window: u64
     campaign_count: u256
-    campaigns: TreeMap[u256, Campaign]
-    creator_campaign_ids: TreeMap[Address, DynArray[u256]]
-    kol_campaign_ids: TreeMap[Address, DynArray[u256]]
+    campaigns: gl.storage.TreeMap[u256, Campaign]
+    creator_campaign_ids: gl.storage.TreeMap[Address, gl.storage.DynArray[u256]]
+    kol_campaign_ids: gl.storage.TreeMap[Address, gl.storage.DynArray[u256]]
     last_raw_result: str
 
     def __init__(self):
@@ -214,7 +229,7 @@ class HorkiosEscrow(gl.Contract):
     ) -> int:
         count = len(instructions)
         if count < MIN_DEMANDS or count > MAX_DEMANDS:
-            raise gl.UserError("INVALID_DEMAND_COUNT")
+            raise gl.vm.UserError("INVALID_DEMAND_COUNT")
         if not (
             len(weights_bps) == count
             and len(deadlines) == count
@@ -222,34 +237,34 @@ class HorkiosEscrow(gl.Contract):
             and len(min_likes) == count
             and len(min_reposts) == count
         ):
-            raise gl.UserError("DEMAND_ARRAY_LENGTH_MISMATCH")
+            raise gl.vm.UserError("DEMAND_ARRAY_LENGTH_MISMATCH")
         if len(title.strip()) == 0 or len(title) > MAX_TITLE:
-            raise gl.UserError("INVALID_TITLE")
+            raise gl.vm.UserError("INVALID_TITLE")
         if len(description) > MAX_DESCRIPTION:
-            raise gl.UserError("INVALID_DESCRIPTION")
+            raise gl.vm.UserError("INVALID_DESCRIPTION")
         normalized_handle = self._normalize_handle(x_account)
         if not re.fullmatch(r"[a-z0-9_]{1,15}", normalized_handle):
-            raise gl.UserError("INVALID_X_ACCOUNT")
+            raise gl.vm.UserError("INVALID_X_ACCOUNT")
         if not re.fullmatch(r"[0-9a-f]{64}", invite_hash):
-            raise gl.UserError("INVALID_INVITE_HASH")
+            raise gl.vm.UserError("INVALID_INVITE_HASH")
         now = _now()
         if acceptance_deadline <= now:
-            raise gl.UserError("ACCEPTANCE_DEADLINE_NOT_FUTURE")
+            raise gl.vm.UserError("ACCEPTANCE_DEADLINE_NOT_FUTURE")
         if gl.message.value == u256(0):
-            raise gl.UserError("ESCROW_REQUIRED")
+            raise gl.vm.UserError("ESCROW_REQUIRED")
         total_weight = 0
         for i in range(count):
             if len(instructions[i].strip()) == 0 or len(instructions[i]) > MAX_INSTRUCTIONS:
-                raise gl.UserError("INVALID_INSTRUCTIONS")
+                raise gl.vm.UserError("INVALID_INSTRUCTIONS")
             if weights_bps[i] <= 0:
-                raise gl.UserError("INVALID_WEIGHT")
+                raise gl.vm.UserError("INVALID_WEIGHT")
             if deadlines[i] <= acceptance_deadline:
-                raise gl.UserError("DEMAND_DEADLINE_TOO_EARLY")
+                raise gl.vm.UserError("DEMAND_DEADLINE_TOO_EARLY")
             if min_views[i] < 0 or min_likes[i] < 0 or min_reposts[i] < 0:
-                raise gl.UserError("INVALID_METRIC")
+                raise gl.vm.UserError("INVALID_METRIC")
             total_weight += weights_bps[i]
         if total_weight != BPS_TOTAL:
-            raise gl.UserError("WEIGHTS_MUST_TOTAL_10000")
+            raise gl.vm.UserError("WEIGHTS_MUST_TOTAL_10000")
 
         campaign_id = self.campaign_count
         self.campaign_count = u256(int(self.campaign_count) + 1)
@@ -285,13 +300,13 @@ class HorkiosEscrow(gl.Contract):
     ) -> None:
         campaign = self._campaign(campaign_id)
         if campaign.status != OFFERED:
-            raise gl.UserError("CAMPAIGN_NOT_OFFERED")
+            raise gl.vm.UserError("CAMPAIGN_NOT_OFFERED")
         if _now() > int(campaign.acceptance_deadline):
-            raise gl.UserError("INVITATION_EXPIRED")
+            raise gl.vm.UserError("INVITATION_EXPIRED")
         if len(invite_secret) != 64 or hashlib.sha256(bytes.fromhex(invite_secret)).hexdigest() != campaign.invite_hash:
-            raise gl.UserError("INVALID_INVITE_SECRET")
+            raise gl.vm.UserError("INVALID_INVITE_SECRET")
         if len(accepted) != len(campaign.demands) or len(proposed_deadlines) != len(campaign.demands):
-            raise gl.UserError("REVIEW_ARRAY_LENGTH_MISMATCH")
+            raise gl.vm.UserError("REVIEW_ARRAY_LENGTH_MISMATCH")
         campaign.kol = gl.message.sender_address
         has_counter = False
         for i in range(len(campaign.demands)):
@@ -301,7 +316,7 @@ class HorkiosEscrow(gl.Contract):
                 demand.proposed_deadline = u64(0)
             else:
                 if proposed_deadlines[i] <= int(demand.original_deadline):
-                    raise gl.UserError("COUNTER_DEADLINE_MUST_BE_LATER")
+                    raise gl.vm.UserError("COUNTER_DEADLINE_MUST_BE_LATER")
                 demand.review = REVIEW_COUNTERED
                 demand.proposed_deadline = u64(proposed_deadlines[i])
                 has_counter = True
@@ -316,9 +331,9 @@ class HorkiosEscrow(gl.Contract):
         campaign = self._campaign(campaign_id)
         self._require_creator(campaign)
         if campaign.status != COUNTERED:
-            raise gl.UserError("CAMPAIGN_NOT_COUNTERED")
+            raise gl.vm.UserError("CAMPAIGN_NOT_COUNTERED")
         if _now() > int(campaign.acceptance_deadline):
-            raise gl.UserError("INVITATION_EXPIRED")
+            raise gl.vm.UserError("INVITATION_EXPIRED")
         self._activate(campaign)
 
     @gl.public.write
@@ -326,16 +341,16 @@ class HorkiosEscrow(gl.Contract):
         campaign = self._campaign(campaign_id)
         self._require_creator(campaign)
         if campaign.status != OFFERED and campaign.status != COUNTERED:
-            raise gl.UserError("CAMPAIGN_CANNOT_BE_CANCELLED")
+            raise gl.vm.UserError("CAMPAIGN_CANNOT_BE_CANCELLED")
         self._refund_all_and_cancel(campaign)
 
     @gl.public.write
     def expire_unaccepted_campaign(self, campaign_id: int) -> None:
         campaign = self._campaign(campaign_id)
         if campaign.status != OFFERED and campaign.status != COUNTERED:
-            raise gl.UserError("CAMPAIGN_CANNOT_EXPIRE")
+            raise gl.vm.UserError("CAMPAIGN_CANNOT_EXPIRE")
         if _now() <= int(campaign.acceptance_deadline):
-            raise gl.UserError("INVITATION_NOT_EXPIRED")
+            raise gl.vm.UserError("INVITATION_NOT_EXPIRED")
         self._refund_all_and_cancel(campaign)
 
     @gl.public.write
@@ -344,7 +359,7 @@ class HorkiosEscrow(gl.Contract):
         self._require_kol(campaign)
         demand = self._demand(campaign, demand_id)
         if demand.status == PASSED or demand.status == REFUNDED:
-            raise gl.UserError("DEMAND_ALREADY_SETTLED")
+            raise gl.vm.UserError("DEMAND_ALREADY_SETTLED")
         demand.evidence_url = self._canonical_x_url(evidence_url)
         if x_user_id:
             demand.x_user_id = x_user_id
@@ -356,9 +371,9 @@ class HorkiosEscrow(gl.Contract):
         self._require_party(campaign)
         demand = self._demand(campaign, demand_id)
         if demand.status != SUBMITTED:
-            raise gl.UserError("EVIDENCE_NOT_SUBMITTED")
+            raise gl.vm.UserError("EVIDENCE_NOT_SUBMITTED")
         if _now() > int(demand.active_deadline):
-            raise gl.UserError("USE_FINALIZE_EXPIRED_DEMAND")
+            raise gl.vm.UserError("USE_FINALIZE_EXPIRED_DEMAND")
         decision = self._verify(campaign, demand)
         self._record_decision(demand, decision)
         if decision.passed:
@@ -370,9 +385,9 @@ class HorkiosEscrow(gl.Contract):
         self._require_party(campaign)
         demand = self._demand(campaign, demand_id)
         if demand.status == PASSED or demand.status == REFUNDED:
-            raise gl.UserError("DEMAND_ALREADY_SETTLED")
+            raise gl.vm.UserError("DEMAND_ALREADY_SETTLED")
         if _now() <= int(demand.active_deadline):
-            raise gl.UserError("DEMAND_NOT_EXPIRED")
+            raise gl.vm.UserError("DEMAND_NOT_EXPIRED")
         if len(demand.evidence_url) > 0:
             decision = self._verify(campaign, demand)
             self._record_decision(demand, decision)
@@ -388,10 +403,10 @@ class HorkiosEscrow(gl.Contract):
         campaign = self._active_campaign(campaign_id)
         self._require_party(campaign)
         if category not in ("external_hardship", "kol_breach", "other"):
-            raise gl.UserError("INVALID_TERMINATION_CATEGORY")
+            raise gl.vm.UserError("INVALID_TERMINATION_CATEGORY")
         urls_json = self._validated_evidence_json(evidence_urls)
         if len(statement.strip()) == 0 or len(statement) > MAX_DESCRIPTION:
-            raise gl.UserError("INVALID_TERMINATION_STATEMENT")
+            raise gl.vm.UserError("INVALID_TERMINATION_STATEMENT")
         now = _now()
         campaign.termination = TerminationCase(
             gl.message.sender_address, category, statement.strip(), urls_json, "", "[]",
@@ -408,13 +423,13 @@ class HorkiosEscrow(gl.Contract):
         self._require_party(campaign)
         case = campaign.termination
         if campaign.status != TERMINATION_PENDING or case.status != TERMINATION_OPEN:
-            raise gl.UserError("TERMINATION_NOT_OPEN")
+            raise gl.vm.UserError("TERMINATION_NOT_OPEN")
         if gl.message.sender_address == case.requester:
-            raise gl.UserError("REQUESTER_CANNOT_RESPOND")
+            raise gl.vm.UserError("REQUESTER_CANNOT_RESPOND")
         if _now() > int(case.response_deadline):
-            raise gl.UserError("RESPONSE_WINDOW_CLOSED")
+            raise gl.vm.UserError("RESPONSE_WINDOW_CLOSED")
         if len(statement) > MAX_DESCRIPTION or len(case.respondent_statement) > 0:
-            raise gl.UserError("INVALID_TERMINATION_RESPONSE")
+            raise gl.vm.UserError("INVALID_TERMINATION_RESPONSE")
         case.respondent_statement = statement.strip()
         case.respondent_evidence_json = self._validated_evidence_json(evidence_urls)
         case.status = TERMINATION_READY
@@ -425,9 +440,9 @@ class HorkiosEscrow(gl.Contract):
         self._require_party(campaign)
         case = campaign.termination
         if campaign.status != TERMINATION_PENDING or case.status not in (TERMINATION_OPEN, TERMINATION_READY):
-            raise gl.UserError("TERMINATION_NOT_ADJUDICABLE")
+            raise gl.vm.UserError("TERMINATION_NOT_ADJUDICABLE")
         if _now() <= int(case.response_deadline):
-            raise gl.UserError("RESPONSE_WINDOW_OPEN")
+            raise gl.vm.UserError("RESPONSE_WINDOW_OPEN")
         ruling = self._adjudicate(campaign)
         case.ruling = u8(ruling["ruling"])
         case.reason = ruling["reason"][:MAX_REASON]
@@ -559,12 +574,17 @@ Return ONLY compact JSON with exactly these fields as raw values:
 - post_exists (boolean): true if the page contains a real tweet, false otherwise
 - author (string): the @handle of the tweet author, lowercase without @, empty string if unknown
 - status_id (string): the numeric tweet ID from the URL, empty string if unknown
-- text (string): the full text content of the tweet
-- content_matches (boolean): true if the tweet content satisfies the requirements below
-- published_at_unix (integer): tweet creation time as Unix seconds, 0 if unknown
-- observed_views (integer): view count
-- observed_likes (integer): like count
-- observed_reposts (integer): repost/retweet count
+- text (string): the combined text of the root tweet and, if it is part of a self-thread, every connected tweet in that thread by the same author, joined with a line containing only ---
+- thread_length (integer): number of connected same-author tweets included in text, 1 if the post stands alone
+- content_matches (boolean): true if the root tweet OR its full self-thread content satisfies the requirements below
+- published_at_unix (integer): root tweet creation time as Unix seconds, 0 if unknown
+- observed_views (integer): view count of the root tweet
+- observed_likes (integer): like count of the root tweet
+- observed_reposts (integer): repost/retweet count of the root tweet
+
+A self-thread is the same author posting connected replies beneath the root tweet. Treat the
+combined self-thread as one unit: requirements may be satisfied by ANY connected tweet in the
+thread, not only the root tweet. Do not include other users' replies.
 
 PRE-EXTRACTED ENGAGEMENT METRICS (from React/Relay state via regex):
 - observed_views: {regex_views}
@@ -589,7 +609,7 @@ Data source: {source}
         raw_result = gl.eq_principle.prompt_non_comparative(
             classify,
             task="Extract raw data fields from the X/Twitter post and check if the content matches the requirements.",
-            criteria="Return valid JSON with exactly these keys: post_exists (bool), author (string), status_id (string), text (string), content_matches (bool), published_at_unix (int), observed_views (int), observed_likes (int), observed_reposts (int). All counts must be non-negative integers. Author must be a lowercase handle without @. content_matches must be true only if the tweet text satisfies the stated requirements.",
+            criteria="Return valid JSON with exactly these keys: post_exists (bool), author (string), status_id (string), text (string), thread_length (int), content_matches (bool), published_at_unix (int), observed_views (int), observed_likes (int), observed_reposts (int). All counts must be non-negative integers. Author must be a lowercase handle without @. text must include the root tweet and, for a self-thread, every connected same-author tweet joined by ---. content_matches must be true only if the root tweet or its full self-thread satisfies the stated requirements.",
         )
         self.last_raw_result = str(raw_result)[:2000]
         parsed = _extract_json(raw_result)
@@ -661,6 +681,7 @@ Campaign title: {campaign.title}
             "author": "",
             "status_id": "",
             "text": "",
+            "thread_length": 0,
             "content_matches": False,
             "published_at_unix": 0,
             "observed_views": 0,
@@ -721,11 +742,22 @@ Campaign title: {campaign.title}
         text = value.get("text", "")
         if not isinstance(text, str):
             text = str(text)
+        thread_length = value.get("thread_length", 1)
+        if isinstance(thread_length, bool):
+            thread_length = 1
+        if not isinstance(thread_length, int):
+            try:
+                thread_length = int(thread_length)
+            except (ValueError, TypeError):
+                thread_length = 1
+        if thread_length < 1:
+            thread_length = 1
         return {
             "post_exists": post_exists,
             "author": author,
             "status_id": normalized_status_id,
             "text": text,
+            "thread_length": thread_length,
             "content_matches": content_matches,
             "published_at_unix": published_at_unix,
             "observed_views": metrics["observed_views"],
@@ -758,25 +790,25 @@ Campaign title: {campaign.title}
 
     def _pay_amount(self, campaign: Campaign, gross: int) -> None:
         if gross <= 0 or gross > int(campaign.locked_amount):
-            raise gl.UserError("INVALID_PAYOUT")
+            raise gl.vm.UserError("INVALID_PAYOUT")
         fee = gross * FEE_BPS // BPS_TOTAL
         net = gross - fee
         campaign.locked_amount = u256(int(campaign.locked_amount) - gross)
         campaign.gross_paid = u256(int(campaign.gross_paid) + gross)
         campaign.net_paid = u256(int(campaign.net_paid) + net)
         campaign.fees_paid = u256(int(campaign.fees_paid) + fee)
-        gl.get_contract_at(campaign.kol).emit_transfer(value=u256(net))
+        _send_native(campaign.kol, net)
         if fee > 0:
-            gl.get_contract_at(self.fee_recipient).emit_transfer(value=u256(fee))
+            _send_native(self.fee_recipient, fee)
 
     def _refund_amount(self, campaign: Campaign, amount: int) -> None:
         if amount <= 0:
             return
         if amount > int(campaign.locked_amount):
-            raise gl.UserError("INVALID_REFUND")
+            raise gl.vm.UserError("INVALID_REFUND")
         campaign.locked_amount = u256(int(campaign.locked_amount) - amount)
         campaign.refunded = u256(int(campaign.refunded) + amount)
-        gl.get_contract_at(campaign.creator).emit_transfer(value=u256(amount))
+        _send_native(campaign.creator, amount)
 
     def _refund_all_and_cancel(self, campaign: Campaign) -> None:
         amount = int(campaign.locked_amount)
@@ -796,42 +828,42 @@ Campaign title: {campaign.title}
     def _campaign(self, campaign_id: int) -> Campaign:
         key = u256(campaign_id)
         if campaign_id < 0 or key not in self.campaigns:
-            raise gl.UserError("CAMPAIGN_NOT_FOUND")
+            raise gl.vm.UserError("CAMPAIGN_NOT_FOUND")
         return self.campaigns[key]
 
     def _active_campaign(self, campaign_id: int) -> Campaign:
         campaign = self._campaign(campaign_id)
         if campaign.status != ACTIVE:
-            raise gl.UserError("CAMPAIGN_NOT_ACTIVE")
+            raise gl.vm.UserError("CAMPAIGN_NOT_ACTIVE")
         return campaign
 
     def _demand(self, campaign: Campaign, demand_id: int) -> Demand:
         if demand_id < 0 or demand_id >= len(campaign.demands):
-            raise gl.UserError("DEMAND_NOT_FOUND")
+            raise gl.vm.UserError("DEMAND_NOT_FOUND")
         return campaign.demands[demand_id]
 
     def _require_creator(self, campaign: Campaign) -> None:
         if gl.message.sender_address != campaign.creator:
-            raise gl.UserError("CREATOR_ONLY")
+            raise gl.vm.UserError("CREATOR_ONLY")
 
     def _require_kol(self, campaign: Campaign) -> None:
         if gl.message.sender_address != campaign.kol:
-            raise gl.UserError("KOL_ONLY")
+            raise gl.vm.UserError("KOL_ONLY")
 
     def _require_party(self, campaign: Campaign) -> None:
         if gl.message.sender_address != campaign.creator and gl.message.sender_address != campaign.kol:
-            raise gl.UserError("CAMPAIGN_PARTY_ONLY")
+            raise gl.vm.UserError("CAMPAIGN_PARTY_ONLY")
 
     def _append_wallet_index(
-        self, index: TreeMap[Address, DynArray[u256]], address: Address, campaign_id: u256
+        self, index: gl.storage.TreeMap[Address, gl.storage.DynArray[u256]], address: Address, campaign_id: u256
     ) -> None:
         index.get_or_insert_default(address).append(campaign_id)
 
     def _page_ids(
-        self, index: TreeMap[Address, DynArray[u256]], address: Address, cursor: int, limit: int
+        self, index: gl.storage.TreeMap[Address, gl.storage.DynArray[u256]], address: Address, cursor: int, limit: int
     ) -> list[int]:
         if cursor < 0 or limit <= 0 or limit > 50:
-            raise gl.UserError("INVALID_PAGE")
+            raise gl.vm.UserError("INVALID_PAGE")
         if address not in index:
             return []
         values: list[int] = []
@@ -845,23 +877,23 @@ Campaign title: {campaign.title}
 
     def _canonical_x_url(self, value: str) -> str:
         if len(value) == 0 or len(value) > MAX_URL:
-            raise gl.UserError("INVALID_EVIDENCE_URL")
+            raise gl.vm.UserError("INVALID_EVIDENCE_URL")
         parsed = urlparse(value.strip())
         host = (parsed.hostname or "").lower()
         if parsed.scheme != "https" or host not in ("x.com", "www.x.com", "twitter.com", "www.twitter.com"):
-            raise gl.UserError("UNSUPPORTED_EVIDENCE_HOST")
+            raise gl.vm.UserError("UNSUPPORTED_EVIDENCE_HOST")
         match = re.fullmatch(r"/([A-Za-z0-9_]{1,15})/status/(\d+)/?", parsed.path)
         if not match or parsed.query or parsed.fragment:
-            raise gl.UserError("INVALID_X_STATUS_URL")
+            raise gl.vm.UserError("INVALID_X_STATUS_URL")
         return f"https://x.com/{match.group(1)}/status/{match.group(2)}"
 
     def _validated_evidence_json(self, values: list[str]) -> str:
         if len(values) > MAX_TERMINATION_URLS:
-            raise gl.UserError("TOO_MANY_EVIDENCE_URLS")
+            raise gl.vm.UserError("TOO_MANY_EVIDENCE_URLS")
         clean: list[str] = []
         for value in values:
             parsed = urlparse(value.strip())
             if parsed.scheme != "https" or not parsed.hostname or len(value) > MAX_URL:
-                raise gl.UserError("INVALID_PUBLIC_EVIDENCE_URL")
+                raise gl.vm.UserError("INVALID_PUBLIC_EVIDENCE_URL")
             clean.append(value.strip())
         return json.dumps(clean, separators=(",", ":"))

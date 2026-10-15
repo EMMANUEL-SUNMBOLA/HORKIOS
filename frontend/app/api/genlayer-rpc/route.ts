@@ -6,6 +6,6 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   return relayGenLayerRpc(
     request,
-    process.env.NEXT_PUBLIC_GENLAYER_NETWORK || "studionet",
+    process.env.NEXT_PUBLIC_GENLAYER_NETWORK || "studioDevnet",
   );
 }

@@ -2,7 +2,11 @@
 
 > Programmable oaths. Verifiable work. Trustless settlement.
 
-**Live contract (Studionet):** [`0x3263616508e027D16bA972adA438D8cf50bfAd9d`](https://explorer-studio.genlayer.com/address/0x3263616508e027D16bA972adA438D8cf50bfAd9d)
+**Network:** Studio Next (Consensus v0.6 preview, preset `studioDevnet`, chain id 61997).
+**Deployed contract:** `0x5306c0f759dDD670452655f00a8181a54b007F69` (funded canary passed:
+`get_config()` verified, create→cancel refunds round-trip). Earlier Studionet deployments
+(`0xE1f66188…`, `0xba7B71a9…`) and the first Studio Next build (`0xD901a7B7…`, deployed with a
+non-delivering payout path) are retired — never send another transaction or GEN to them.
 
 ## The problem
 
@@ -24,11 +28,11 @@ HORKIOS is named after **Zeus Horkios**, the aspect of Zeus associated with guar
 
 This same problem exists in the agentic economy. AI agents will hire other AI agents to create content, run campaigns, perform tasks, and deliver results. Agents cannot rely on reputation, social trust, or legal contracts. They need programmable escrow with automated verification — pay only when the work is provably done. HORKIOS is built for that future: trustless agreements, evidence-based settlement, and on-chain enforcement that works whether the parties are human, autonomous, or both.
 
-The project is currently a **working Studionet MVP**. The contract, application, deployment workflow, and lifecycle tests are implemented; real-X launch-gate testing and the final Bradbury promotion remain in progress.
+The project is currently a **working Studio Next (Consensus v0.6) MVP**. The contract, application, deployment workflow, and lifecycle tests are implemented; real-X launch-gate testing and the final Bradbury promotion remain in progress.
 
 ## MVP
 
-The first HORKIOS release will support public X/Twitter campaigns funded with native GEN on GenLayer Testnet Bradbury. Development and launch-gate testing run on Studionet; the exact source revision that passes that gate is then promoted to Bradbury for submission.
+The first HORKIOS release will support public X/Twitter campaigns funded with native GEN on GenLayer Testnet Bradbury. Development and launch-gate testing run on Studio Next (the Consensus v0.6 release-candidate environment); the exact source revision that passes that gate is then promoted to Bradbury for submission.
 
 ### Creator journey
 
@@ -111,7 +115,7 @@ HORKIOS/
 - Implement campaign creation, escrow accounting, secret invitations, granular acceptance, counter-deadlines, verification, settlement, refunds, and termination.
 - Establish direct-mode contract tests and financial invariant tests.
 
-### Phase 3 — Product MVP (complete on Studionet)
+### Phase 3 — Product MVP (complete on Studio Next)
 
 - Build the responsive creator, invitation, campaign, dashboard, and evidence flows.
 - Integrate wallet connection, network switching, transaction feedback, and contract reads/writes.
@@ -150,15 +154,19 @@ HORKIOS/
 
 ## Documentation
 
-Personal planning Markdown is intentionally kept out of Git. The public contract behavior,
-setup, and release status are documented here; the application also includes a user-facing
-How It Works page.
+- `AGENTS.md` — project contract for coding agents and humans: ground rules, contract
+  reference, frontend mapping, status, problems and root causes, and the engineering journal.
+- `CONTRACTS-PLAN.md` — contract specification and Studio deployment sheet.
+- `UI-LAYOUT.md` — product UX, state vocabulary, and component inventory.
+- `Design-Inspo.md` — visual system reference.
+
+The application also includes a user-facing How It Works page.
 
 ## Status
 
-Active Studionet development and lifecycle testing. Bradbury deployment is promotion-only after the full launch gate passes, and test GEN has no monetary value.
+Active Studio Next (Consensus v0.6) development and lifecycle testing. Bradbury deployment is promotion-only after the full launch gate passes, and test GEN has no monetary value.
 
 Browser JSON-RPC calls for hosted GenLayer networks use the same-origin
-`/api/genlayer-rpc` relay. It forwards only to the fixed official Studionet or Bradbury
-upstream, avoiding hosted-RPC CORS restrictions without exposing an open proxy. Localnet
-continues to use its direct local endpoint.
+`/api/genlayer-rpc` relay. It forwards only to the fixed official Studio Next, Studionet, or
+Bradbury upstream, avoiding hosted-RPC CORS restrictions without exposing an open proxy.
+Localnet continues to use its direct local endpoint.

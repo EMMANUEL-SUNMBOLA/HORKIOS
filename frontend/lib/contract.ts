@@ -1,34 +1,29 @@
 import { createClient } from "genlayer-js";
-import { localnet, studionet, testnetBradbury } from "genlayer-js/chains";
-import { ExecutionResult, TransactionStatus } from "genlayer-js/types";
+import { ExecutionResult, TransactionStatus, transactionsStatusNumberToName } from "genlayer-js/types";
 import type { Hash } from "genlayer-js/types";
 import type { Address, Campaign } from "./types";
-import { hostedRpcUpstream, RPC_RELAY_PATH } from "./rpc-relay";
+import { chain, networkName } from "./genlayer/network";
+import { submitContractWrite, type Eip1193Provider } from "./genlayer/kit";
+
+export { chain, expectedChainId, networkName, officialChain } from "./genlayer/network";
 
 declare global {
   interface Window { ethereum?: unknown; }
 }
 
-export const networkName = process.env.NEXT_PUBLIC_GENLAYER_NETWORK || "studionet";
 export const contractAddress = process.env.NEXT_PUBLIC_HORKIOS_CONTRACT_ADDRESS as Address | undefined;
-export const expectedReleaseId = "horkios-escrow-2026-08-storage-v2";
+export const expectedReleaseId = "horkios-escrow-2026-10-studio-next-v3";
 
-const chains = { localnet, studionet, testnetBradbury } as const;
-export const officialChain = chains[networkName as keyof typeof chains] ?? studionet;
-export const expectedChainId = officialChain.id;
-const browserRpc = hostedRpcUpstream(networkName) ? RPC_RELAY_PATH : officialChain.rpcUrls.default.http[0];
-export const chain = {
-  ...officialChain,
-  rpcUrls: {
-    ...officialChain.rpcUrls,
-    default: { ...officialChain.rpcUrls.default, http: [browserRpc] },
-  },
-};
 export const readClient = createClient({ chain });
 
 export function writeClient(address: Address) {
-  if (typeof window === "undefined" || !window.ethereum) throw new Error("A browser wallet is required");
-  return createClient({ chain, account: address, provider: window.ethereum });
+  const injected = typeof window === "undefined" ? undefined : window.ethereum as Eip1193Provider | undefined;
+  if (!injected) throw new Error("A browser wallet is required");
+  return {
+    writeContract(request: { address: Address; functionName: string; args?: unknown[]; value?: bigint }) {
+      return submitContractWrite(request, address, injected);
+    },
+  };
 }
 
 export function requireContract(): Address {
@@ -51,17 +46,31 @@ export class TransactionStatusUnavailableError extends Error {
 export type LeaderReceiptEntry = {
   mode?: string;
   execution_result?: string;
+  error?: string | null;
   genvm_result?: { stderr?: string };
   result?: unknown;
 };
 
 export type ReceiptOutcome = {
   hash?: Hash;
+  status?: TransactionStatus | number;
   status_name?: TransactionStatus;
   statusName?: TransactionStatus;
   txExecutionResultName?: ExecutionResult;
+  txExecutionResult?: number;
   consensus_data?: { leader_receipt?: LeaderReceiptEntry[] };
 };
+
+const statusByNumber = transactionsStatusNumberToName as unknown as Record<string, TransactionStatus>;
+
+/** Resolve the persisted lifecycle status across v1 (snake_case) and v0.6 (camelCase/number) receipts. */
+export function receiptStatus(receipt: ReceiptOutcome): TransactionStatus | undefined {
+  const raw = receipt.statusName ?? receipt.status_name ?? receipt.status;
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw === "number") return statusByNumber[String(raw)];
+  if (typeof raw === "string" && /^\d+$/.test(raw)) return statusByNumber[raw];
+  return raw as TransactionStatus;
+}
 
 function leaderReceipt(receipt: ReceiptOutcome): LeaderReceiptEntry | undefined {
   const list = receipt.consensus_data?.leader_receipt;
@@ -72,11 +81,15 @@ function leaderReceipt(receipt: ReceiptOutcome): LeaderReceiptEntry | undefined 
 function leaderFailed(receipt: ReceiptOutcome): boolean {
   const leader = leaderReceipt(receipt);
   if (!leader) return false;
-  return String(leader.execution_result) === "ERROR" || Boolean(leader.genvm_result?.stderr);
+  const result = String(leader.execution_result ?? "");
+  return result === "ERROR"
+    || result === "FINISHED_WITH_ERROR"
+    || Boolean(leader.error)
+    || Boolean(leader.genvm_result?.stderr);
 }
 
 export function receiptFailure(receipt: ReceiptOutcome): "undetermined" | "execution" | null {
-  const status = receipt.status_name ?? receipt.statusName;
+  const status = receiptStatus(receipt);
   if (status === TransactionStatus.UNDETERMINED) return "undetermined";
   if (status !== TransactionStatus.FINALIZED) return null;
 
@@ -90,7 +103,7 @@ export function receiptFailure(receipt: ReceiptOutcome): "undetermined" | "execu
 
 async function _finalizedErrorDetail(receipt: ReceiptOutcome): Promise<string> {
   const leader = leaderReceipt(receipt);
-  const stderr = leader?.genvm_result?.stderr || "";
+  const stderr = leader?.genvm_result?.stderr || leader?.error || "";
   if (stderr) return stderr;
   if (!receipt.hash) return "";
   try {
@@ -105,6 +118,11 @@ const sleep = (milliseconds: number) => new Promise(resolve => setTimeout(resolv
 export const isRateLimitError = (error: unknown) => /rate limit|too many requests|\b429\b/i.test(String(error instanceof Error ? error.message : error));
 export const isTransientRpcError = (error: unknown) => isRateLimitError(error) || /timeout|timed out|fetch failed|network error|bad gateway|service unavailable|gateway timeout|unavailable|\b50[234]\b|not found/i.test(String(error instanceof Error ? error.message : error));
 
+const terminalFailureStatuses = new Set<TransactionStatus>([
+  TransactionStatus.UNDETERMINED,
+  TransactionStatus.CANCELED,
+]);
+
 export async function waitForOutcome(hash: Hash, callbacks: { onAccepted?: () => void; onMonitoringDelay?: (delayed: boolean) => void } = {}, options: { maxWaitMs?: number; pollMs?: number; getTransaction?: () => Promise<ReceiptOutcome>; sleep?: (ms: number) => Promise<unknown>; now?: () => number } = {}) {
   const started = (options.now ?? Date.now)();
   const maxWait = options.maxWaitMs ?? 3_600_000;
@@ -117,8 +135,11 @@ export async function waitForOutcome(hash: Hash, callbacks: { onAccepted?: () =>
     try {
       const receipt = await getTransaction();
       callbacks.onMonitoringDelay?.(false);
-      const status = receipt.status_name ?? receipt.statusName;
-      if (status === TransactionStatus.UNDETERMINED) throw new UndeterminedTransactionError();
+      const status = receiptStatus(receipt);
+      if (status !== undefined && terminalFailureStatuses.has(status)) {
+        if (status === TransactionStatus.UNDETERMINED) throw new UndeterminedTransactionError();
+        throw new Error(`The transaction ended as ${status} before settling; no payout was executed.`);
+      }
       if (!accepted && (status === TransactionStatus.ACCEPTED || status === TransactionStatus.FINALIZED)) {
         accepted = true; callbacks.onAccepted?.();
       }
@@ -159,8 +180,12 @@ export async function assertContractConfig() {
   return configPromise;
 }
 
+export async function nativeBalance(address: Address): Promise<bigint> {
+  return await readClient.getBalance({ address }) as bigint;
+}
+
 export async function assertFunded(address: Address, required: bigint) {
-  const balance = await readClient.getBalance({ address });
+  const balance = await nativeBalance(address);
   if (balance < required) throw new Error(`Insufficient GEN on ${networkName}: ${balance} wei available, ${required} wei required`);
 }
 

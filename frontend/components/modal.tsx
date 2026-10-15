@@ -1,17 +1,24 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
-type ModalContextValue = { showModal(render: () => React.ReactNode): void; hideModal(): void; visible: boolean };
+type ModalContextValue = { showModal(render: () => React.ReactNode, onDismiss?: () => void): void; hideModal(): void; visible: boolean };
 const ModalContext = createContext<ModalContextValue | null>(null);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [renderFn, setRenderFn] = useState<(() => React.ReactNode) | null>(null);
   const [visible, setVisible] = useState(false);
-  const showModal = useCallback((render: () => React.ReactNode) => { setRenderFn(() => render); setVisible(true); }, []);
-  const hideModal = useCallback(() => { setVisible(false); setRenderFn(null); }, []);
+  const dismissRef = useRef<(() => void) | undefined>(undefined);
+  const showModal = useCallback((render: () => React.ReactNode, onDismiss?: () => void) => { dismissRef.current = onDismiss; setRenderFn(() => render); setVisible(true); }, []);
+  const hideModal = useCallback(() => {
+    setVisible(false);
+    setRenderFn(null);
+    const onDismiss = dismissRef.current;
+    dismissRef.current = undefined;
+    onDismiss?.();
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
